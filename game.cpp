@@ -8,27 +8,12 @@
 
 using namespace std;
 
-int main(){
-
-    BB wKing = 0x0000000000000000ULL;
-    BB bKing = 0x0000000000000000ULL;
-    BB wQueens = 0x0000000000000000ULL;
-    BB bQueens = 0x0000000000000000ULL;
-    BB wRooks = 0x0000000000000000ULL;
-    BB bRooks = 0x0000000000000000ULL;
-    BB wBishops = 0x0000000000000000ULL;
-    BB bBishops = 0x0000000000000000ULL;
-    BB wKnights = 0x0000000000000000ULL;
-    BB bKnights = 0x0000000000000000ULL;
-    BB wPawns = 0x0000000000000000ULL;
-    BB bPawns = 0x0000000000000000ULL;
-
-    //gameState *gc = new gameState(wKing, bKing, wQueens, bQueens, wRooks, bRooks,
-    //                              wBishops, bBishops, wKnights, bKnights, wPawns, bPawns);
-
+int Game(){
     Bitboard bb{0xFFFFFFFFFFFFFFF0Ull};
-
-    cout << std::bitset<64>(bb.getValue()) << endl;
+    gameState gs;
+    cout << std::bitset<64>(gs.bitboards[0].getValue()) << endl;
+    gs.initialise(STARTING_FEN);
+    cout << std::bitset<64>(gs.bitboards[0].getValue()) << endl;
     cout << bb.getBitAt(63) << endl;
     bb.setBitAt(0);
     return 0;

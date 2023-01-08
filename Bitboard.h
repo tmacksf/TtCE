@@ -5,20 +5,46 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <cassert>
+#include <vector>
 
 #ifndef CHESS_CPP_BITBOARDS_H
 #define CHESS_CPP_BITBOARDS_H
 
+#define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 typedef uint64_t BB;
 
 // all files, ranks, etc
 const BB aFile = 0x0ULL;
+const BB bFile = 0x0ULL;
+const BB cFile = 0x0ULL;
+const BB dFile = 0x0ULL;
+const BB eFile = 0x0ULL;
+const BB fFile = 0x0ULL;
+const BB gFile = 0x0ULL;
+const BB hFile = 0x0ULL;
+
+const BB rank1 = 0x0ULL;
+const BB rank2 = 0x0ULL;
+const BB rank3 = 0x0ULL;
+const BB rank4 = 0x0ULL;
+const BB rank5 = 0x0ULL;
+const BB rank6 = 0x0ULL;
+const BB rank7 = 0x0ULL;
+const BB rank8 = 0x0ULL;
 
 // defining enums for directions and pieces
 enum Color : int {
     WHITE,
     BLACK,
     NONE
+};
+
+enum Castling : int {
+    whiteQueen,
+    whiteKing,
+    blackQueen,
+    blackKing
 };
 
 enum Board : int {
@@ -44,28 +70,27 @@ enum Direction : int {
 };
 
 enum PieceTypes : int {
-    ALL = 0,
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
+    KING,
     QUEEN,
-    KING
+    ROOK,
+    BISHOP,
+    KNIGHT,
+    PAWN
 };
 
 enum Pieces : int {
-    P = PAWN,
-    N,
-    B,
-    R,
-    Q,
     K,
-    p = P + 6,
-    n,
-    b,
-    r,
+    k,
+    Q,
     q,
-    k
+    R,
+    r,
+    N,
+    n,
+    B,
+    b,
+    P,
+    p
 };
 
 class Bitboard {
@@ -73,6 +98,10 @@ private:
     BB b;
 
 public:
+    Bitboard(){
+        this->b = 0ULL;
+    }
+
     Bitboard(BB b){
         this->b = b;
     }

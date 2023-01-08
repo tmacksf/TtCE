@@ -17,7 +17,6 @@ void Bitboard::setBitAt(int index) {
 void Bitboard::unSetBitAt(int index) {
     assert(0 <= index < 64);
     if (getBitAt(index) == 1ULL) {
-        std::cout << "fuck" << std::endl;
         toggleBit(index);
     }
 }
@@ -30,7 +29,7 @@ void Bitboard::toggleBit(int index) {
 int Bitboard::pieceCount(){
     int total = 0;
     for (int i = 0; i < 64; i++) {
-
+        total += getBitAt(i);
     }
     return total;
 }
