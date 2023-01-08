@@ -15,6 +15,9 @@ void gameState::initialise(std::string fen) {
     //splitting the string into two parts, first to define the board position and second to define castling etc.
     int i = 0;
     std::string boardPosition;
+    std::string castling;
+    std::string turn;
+    std::string enPassant;
 
     while (fen[i] != ' ') {
         boardPosition.append(1, fen[i]);
@@ -101,6 +104,49 @@ void gameState::initialise(std::string fen) {
     }
 }
 
-void gameState::printing() {
+void gameState::printing(Piece pcs) {
+    std::string outString;
+    int counter = 0;
+    for (int i = 63; i >= 0; i--) {
+        int flag = 0;
+        for (int j = 0; j < 12; j ++) {
+            if (this->bitboards[j].getBitAt(i) == 1) {
+                outString.append(1, pcs.getChar(j));
+                flag = 1;
+            }
+        }
+        if (!flag) {
+            outString.append(1, '-');
+        }
+        counter += 1;
+        if (counter == 8) {
+            std::cout << outString << std::endl;
+            counter = 0;
+            outString = "";
+        }
+    }
+}
 
+BB gameState::allPieces() {
+    BB all = 0ULL;
+    for (int i = 0; i < 12; i++) {
+        all |= this->bitboards[i].getValue();
+    }
+    return all;
+}
+
+BB gameState::friendlyBoard() {
+    BB friendly = 0ULL;
+    for (int i = 0; i < 6; i++) {
+        friendly |= this->bitboards[i+this->turn].getValue();
+    }
+    return friendly;
+}
+
+BB gameState::enemyBoard() {
+    BB enemy = 0ULL;
+    for (int i = 0; i < 6; i++){
+        enemy |= this->bitboards[i+this->enemy].getValue();
+    }
+    return enemy;
 }
