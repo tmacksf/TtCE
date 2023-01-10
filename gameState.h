@@ -5,15 +5,16 @@
 #ifndef CHESS_CPP_GAMESTATE_H
 #define CHESS_CPP_GAMESTATE_H
 
+#include "Bitboard.h"
 #include "Piece.h"
 
 class gameState {
 public:
     gameState();
 
-    Bitboard bitboards[12]; // order: K, k, Q, q, R, r, B, b, N, n, P, p
+    Bitboard bitboards[12]; // order: K, Q, R, B, N, P, k, q, r, m_bitboard, n, p
     Color turn;
-    Color enemy;
+    Color attacking;
     bool castling[4]; // order: white king side, white queen side, black king side, white king side
     int enPassantSquare = -1; // index of the en passant square
 

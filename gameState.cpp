@@ -32,38 +32,40 @@ void gameState::initialise(std::string fen) {
             boardPos -= (int)fen[i];
         }
         else {
+            // could do all this with the piece index so might implement that later with a pointer to the piece object in the game class
+
             switch (boardPosition[i]) {
                 case 'K':
                     this->bitboards[0].setBitAt(boardPos);
                     break;
-                case 'k':
+                case 'Q':
                     this->bitboards[1].setBitAt(boardPos);
                     break;
-                case 'Q':
+                case 'R':
                     this->bitboards[2].setBitAt(boardPos);
                     break;
-                case 'q':
+                case 'B':
                     this->bitboards[3].setBitAt(boardPos);
                     break;
-                case 'R':
+                case 'N':
                     this->bitboards[4].setBitAt(boardPos);
                     break;
-                case 'r':
+                case 'P':
                     this->bitboards[5].setBitAt(boardPos);
                     break;
-                case 'N':
+                case 'k':
                     this->bitboards[6].setBitAt(boardPos);
                     break;
-                case 'n':
+                case 'q':
                     this->bitboards[7].setBitAt(boardPos);
                     break;
-                case 'B':
+                case 'r':
                     this->bitboards[8].setBitAt(boardPos);
                     break;
                 case 'b':
                     this->bitboards[9].setBitAt(boardPos);
                     break;
-                case 'P':
+                case 'n':
                     this->bitboards[10].setBitAt(boardPos);
                     break;
                 case 'p':
@@ -82,9 +84,11 @@ void gameState::initialise(std::string fen) {
         switch (extraStuff[i]) {
             case ('w'):
                 this->turn = WHITE;
+                this->attacking = BLACK;
                 break;
             case ('b'):
                 this->turn = BLACK;
+                this->attacking = WHITE;
                 break;
             case ('K'):
                 this->castling[0] = true;
@@ -146,7 +150,7 @@ BB gameState::friendlyBoard() {
 BB gameState::enemyBoard() {
     BB enemy = 0ULL;
     for (int i = 0; i < 6; i++){
-        enemy |= this->bitboards[i+this->enemy].getValue();
+        enemy |= this->bitboards[i+this->attacking].getValue();
     }
     return enemy;
 }

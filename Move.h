@@ -11,6 +11,9 @@ public:
     int fromSquare;
     int toSquare;
     int piece;
+    bool captureFlag;
+    bool doublePushFlag;
+    bool promotedPiece;
     bool castleFlag;
     bool enPassantFlag;
 

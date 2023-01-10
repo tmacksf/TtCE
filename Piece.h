@@ -4,9 +4,13 @@
 
 #ifndef CHESS_CPP_PIECE_H
 #define CHESS_CPP_PIECE_H
-#include "Bitboard.h"
+#include <unordered_map>
+#include <iostream>
 
 class Piece {
+
+    // still not super sure if this should be static, but it would make sense
+    
 public:
     enum PieceTypes : int {
         KING,
@@ -19,16 +23,16 @@ public:
 
     enum Pieces : int {
         K,
-        k,
         Q,
-        q,
         R,
-        r,
         B,
-        b,
         N,
-        n,
         P,
+        k,
+        q,
+        r,
+        b,
+        n,
         p
     };
 
@@ -37,8 +41,8 @@ public:
 
     Piece();
 
-    char getChar(int p);
-    int getInt(char c);
+    static char getChar(int p);
+    static int getInt(char c);
 
 };
 

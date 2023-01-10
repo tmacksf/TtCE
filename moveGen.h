@@ -6,7 +6,12 @@
 #define CHESS_CPP_MOVEGEN_H
 #include "gameState.h"
 
-void legalMoves(gameState gc);
-void pseudoLegalMoves(gameState gc);
+class moveGen {
+public:
+    moveGen();
+    std::vector<gameState> *legalMoves(gameState gc);
+    std::vector<gameState> *pseudoLegalMoves(gameState gc);
+    void generatePawnMoves(gameState gc);
 
+};
 #endif //CHESS_CPP_MOVEGEN_H
