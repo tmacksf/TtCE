@@ -13,13 +13,14 @@
 #include <vector>
 #include <unordered_map>
 #include <bitset>
+#include <sstream>
 
 #define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 typedef uint64_t BB;
 
-#define SETBIT(bBoard, index) (bBoard |= 1ULL << index)
-#define UNSETBIT(bBoard, index) (bBoard &= ~(1ULL << index))
-#define GETBIT(bBoard, index) ((bBoard & 1ULL << index) ? 1 : 0)
+#define set_bit(bBoard, index) (bBoard |= 1ULL << index)
+#define unset_bit(bBoard, index) (bBoard &= ~(1ULL << index))
+#define get_bit(bBoard, index) ((bBoard & 1ULL << index) ? 1 : 0)
 
 // all files, ranks, etc
 const BB hFile = 0x0101010101010101ULL;
@@ -30,6 +31,7 @@ const BB dFile = hFile << 4;
 const BB cFile = hFile << 5;
 const BB bFile = hFile << 6;
 const BB aFile = hFile << 7;
+const BB files[] = {hFile, gFile, fFile, eFile, dFile, cFile, bFile, aFile};
 
 const BB rank8 = 0xFF00000000000000ULL;
 const BB rank7 = rank8 >> 8;
@@ -39,6 +41,11 @@ const BB rank4 = rank5 >> 8;
 const BB rank3 = rank4 >> 8;
 const BB rank2 = rank3 >> 8;
 const BB rank1 = rank2 >> 8;
+const BB ranks[] = {rank1, rank2, rank3, rank4, rank5, rank6, rank7, rank8};
+
+// diagonals
+const BB rightLeft = 0x8040201008040201;
+const BB leftRight = 0x0102040810204080;
 
 const BB whiteSquares = 0xAA55AA55AA55AA55ULL;
 const BB blackSquares = 0x55AA55AA55AA55AAULL;
@@ -81,6 +88,9 @@ enum Direction : int {
     SOUTH_EAST = SOUTH + EAST,
     SOUTH_WEST = SOUTH + WEST
 };
+static const Direction allDirections[] = {NORTH, SOUTH, EAST, WEST, NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
+static const Direction squareDirections[] = {NORTH, SOUTH, EAST, WEST};
+static const Direction diagonalDirections[] = {NORTH_EAST, NORTH_WEST, SOUTH_WEST, SOUTH_EAST};
 
 // delete later
 static void printBitString(BB bitboard) {
@@ -89,7 +99,7 @@ static void printBitString(BB bitboard) {
         std::cout << 8-file;
         std::cout << " ";
         for (int rank = 0; rank < 8; rank ++) {
-            std::cout << GETBIT(bitboard , (63 - file * 8 - rank));
+            std::cout << get_bit(bitboard , (63 - file * 8 - rank));
             std::cout << ' ';
         }
         std::cout << std::endl;

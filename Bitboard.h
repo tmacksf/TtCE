@@ -27,13 +27,13 @@ public:
     }
 
     // bitwise methods
-    int getBitAt(int index);
+    int getBitAt(int index) const;
     void setBitAt(int index);
     void unSetBitAt(int index);
     void toggleBit(int index);
-    int pieceCount();
+    int bitCount() const;
     // pretty printing of the bitboard
-    void printBitboard();
+    void printBitboard() const;
 
     // static attack tables to do speedy move generation all but the pawn ones are the same for both colors
     static BB kingMoves[64];
@@ -42,17 +42,20 @@ public:
     static BB bishopMoves[64];
     static BB knightMoves[64];
     static BB pawnMoves[2][64];
-    static BB whitePawnMoves[64];
-    static BB blackPawnMoves[64];
+    static BB pawnAttacks[2][64];
 
     // method to initialize attack tables
-    static void initializeAttackTables();
-    static void initializePawnAttacks();
-    static void initializeKnightAttacks();
-    static void initializeBishopAttacks();
-    static void initializeRookAttacks();
-    static void initializeQueenAttacks();
-    static void initializeKingAttacks();
+    static void initAttackTables();
+    static void initPawnAttacks();
+    static void initPawnMoves();
+    static void initKnightAttacks();
+    static void initBishopAttacks();
+    static void initRookAttacks();
+    static void initQueenAttacks();
+    static void initKingAttacks();
+
+    // making it easier to do generation of moves by segmenting the generation of attack
+    static BB rayAttack(Direction direction, int index, int depth);
 };
 
 #endif //CHESS_CPP_BITBOARDS_H

@@ -16,7 +16,7 @@ public:
     Color turn;
     Color attacking;
     bool castling[4]; // order: white king side, white queen side, black king side, white king side
-    int enPassantSquare = -1; // index of the en passant square
+    int enPassantSquare = -1; // index of the en passant square activated when a pawn is double pushed
 
     // member functions
     void printing(Piece pcs);

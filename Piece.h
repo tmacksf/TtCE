@@ -7,11 +7,13 @@
 #include <unordered_map>
 #include <iostream>
 
-class Piece {
+// need to figure out this class
 
-    // still not super sure if this should be static, but it would make sense
+class Piece {
     
 public:
+    Piece ();
+
     enum PieceTypes : int {
         KING,
         QUEEN,
@@ -36,11 +38,11 @@ public:
         p
     };
 
-    std::unordered_map<Pieces, char> pieceChars;
-    std::unordered_map<char, Pieces> charsPiece;
+    static std::unordered_map<Pieces, char> pieceChars;
+    // this can be an array
+    static std::unordered_map<char, Pieces> charsPiece;
 
-    Piece();
-
+    static void initMaps();
     static char getChar(int p);
     static int getInt(char c);
 

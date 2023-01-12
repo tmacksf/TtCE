@@ -5,32 +5,31 @@
 #include "Piece.h"
 
 Piece::Piece() {
-    pieceChars[K] = 'K';
+    /*Piece::pieceChars[K] = 'K';
+    Piece::pieceChars[Q] = 'Q';
+    Piece::pieceChars[R] = 'R';
+    Piece::pieceChars[B] = 'B';
+    Piece::pieceChars[N] = 'N';
+    Piece::pieceChars[P] = 'P';
+    Piece::pieceChars[k] = 'k';
+    Piece::pieceChars[q] = 'q';
+    Piece::pieceChars[r] = 'r';
+    Piece::pieceChars[Pieces(b)] = 'b';
+    Piece::pieceChars[n] = 'n';
+    Piece::pieceChars[Pieces(p)] = 'p';
 
-    pieceChars[Q] = 'Q';
-    pieceChars[R] = 'R';
-    pieceChars[B] = 'B';
-    pieceChars[N] = 'N';
-    pieceChars[P] = 'P';
-    pieceChars[k] = 'k';
-    pieceChars[q] = 'q';
-    pieceChars[r] = 'r';
-    pieceChars[Pieces(b)] = 'b';
-    pieceChars[n] = 'n';
-    pieceChars[Pieces(p)] = 'p';
-
-    charsPiece['K'] = K;
-    charsPiece['Q'] = Q;
-    charsPiece['R'] = R;
-    charsPiece['B'] = B;
-    charsPiece['N'] = N;
-    charsPiece['P'] = P;
-    charsPiece['k'] = k;
-    charsPiece['q'] = q;
-    charsPiece['r'] = r;
-    charsPiece['b'] = Pieces(b);
-    charsPiece['n'] = n;
-    charsPiece['p'] = Pieces(p);
+    Piece::charsPiece['K'] = K;
+    Piece::charsPiece['Q'] = Q;
+    Piece::charsPiece['R'] = R;
+    Piece::charsPiece['B'] = B;
+    Piece::charsPiece['N'] = N;
+    Piece::charsPiece['P'] = P;
+    Piece::charsPiece['k'] = k;
+    Piece::charsPiece['q'] = q;
+    Piece::charsPiece['r'] = r;
+    Piece::charsPiece['b'] = Pieces(b);
+    Piece::charsPiece['n'] = n;
+    Piece::charsPiece['p'] = Pieces(p);*/
 }
 
 char Piece::getChar(int p) {
@@ -66,29 +65,29 @@ char Piece::getChar(int p) {
 }
 
 int Piece::getInt(char c) {
-    switch (p) {
+    switch (c) {
         case 'K':
             return 0;
         case 'Q':
-            return 2;
-        case 'R':
-            return 4;
-        case 'B':
-            return 6;
-        case 'N':
-            return 8;
-        case 'P':
-            return 10;
-        case 'k':
             return 1;
-        case 'q':
+        case 'R':
+            return 2;
+        case 'B':
             return 3;
-        case 'r':
+        case 'N':
+            return 4;
+        case 'P':
             return 5;
-        case 'b':
+        case 'k':
+            return 6;
+        case 'q':
             return 7;
-        case 'n':
+        case 'r':
+            return 8;
+        case 'b':
             return 9;
+        case 'n':
+            return 10;
         case 'p':
             return 11;
         default:

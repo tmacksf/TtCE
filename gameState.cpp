@@ -14,97 +14,43 @@ gameState::gameState() {
 void gameState::initialise(std::string fen) {
     //splitting the string into two parts, first to define the board position and second to define castling etc.
     int i = 0;
-    std::string boardPosition;
-    std::string castling;
-    std::string turn;
-    std::string enPassant;
 
-    while (fen[i] != ' ') {
-        boardPosition.append(1, fen[i]);
-        i++;
+    std::string s;
+    std::stringstream ss(fen);
+    std::vector<std::string> fenSeperated;
+    while (std::getline(ss, s, ' ')) {
+        fenSeperated.push_back(s);
     }
-    std::string extraStuff(fen, i, fen.length());
 
+    // board position section
     int boardPos = 63;
-    for (i = 0; i < boardPosition.length(); i++) {
-        if (std::isdigit(fen[i])) {
+    for (i = 0; i < fenSeperated[0].length(); i++) {
+        if (std::isdigit(fenSeperated[0][i])) {
             //not sure if I should be casting like this
-            boardPos -= (int)fen[i];
+            boardPos -= int(fenSeperated[0][i]) - 48;
         }
-        else {
-            // could do all this with the piece index so might implement that later with a pointer to the piece object in the game class
-
-            switch (boardPosition[i]) {
-                case 'K':
-                    this->bitboards[0].setBitAt(boardPos);
-                    break;
-                case 'Q':
-                    this->bitboards[1].setBitAt(boardPos);
-                    break;
-                case 'R':
-                    this->bitboards[2].setBitAt(boardPos);
-                    break;
-                case 'B':
-                    this->bitboards[3].setBitAt(boardPos);
-                    break;
-                case 'N':
-                    this->bitboards[4].setBitAt(boardPos);
-                    break;
-                case 'P':
-                    this->bitboards[5].setBitAt(boardPos);
-                    break;
-                case 'k':
-                    this->bitboards[6].setBitAt(boardPos);
-                    break;
-                case 'q':
-                    this->bitboards[7].setBitAt(boardPos);
-                    break;
-                case 'r':
-                    this->bitboards[8].setBitAt(boardPos);
-                    break;
-                case 'b':
-                    this->bitboards[9].setBitAt(boardPos);
-                    break;
-                case 'n':
-                    this->bitboards[10].setBitAt(boardPos);
-                    break;
-                case 'p':
-                    this->bitboards[11].setBitAt(boardPos);
-                    break;
-                default:
-                    // not sure if I need this, but it is to make sure the counting does not go up with / and spaces
-                    boardPos += 1;
-                    break;
-            }
+        else if (fen[i] == '/') { ;
+        } else {
+            char temp = fenSeperated[0][i];
+            bitboards[Piece::getInt(temp)].setBitAt(boardPos);
             boardPos -= 1;
         }
     }
 
-    for (i = 0; i < extraStuff.length(); i++) {
-        switch (extraStuff[i]) {
-            case ('w'):
-                this->turn = WHITE;
-                this->attacking = BLACK;
-                break;
-            case ('b'):
-                this->turn = BLACK;
-                this->attacking = WHITE;
-                break;
-            case ('K'):
-                this->castling[0] = true;
-                break;
-            case ('Q'):
-                this->castling[1] = true;
-                break;
-            case ('k'):
-                this->castling[2] = true;
-                break;
-            case ('q'):
-                this->castling[3] = true;
-                break;
-            default:
-                break;
-        }
+    // turn section
+    if (fenSeperated[1][0] == 'w'){
+        this->turn = WHITE;
+    }
+    else {
+        this->turn = BLACK;
+    }
+
+    // castling section
+    for (i = 0; i < fenSeperated[2].length(); i++){
+        if (fenSeperated[2][i] == 'Q') this->castling[1] = true;
+        if (fenSeperated[2][i] == 'K') this->castling[0] = true;
+        if (fenSeperated[2][i] == 'k') this->castling[2] = true;
+        if (fenSeperated[2][i] == 'q') this->castling[3] = true;
     }
 }
 
