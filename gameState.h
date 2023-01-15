@@ -5,8 +5,9 @@
 #ifndef CHESS_CPP_GAMESTATE_H
 #define CHESS_CPP_GAMESTATE_H
 
-#include "Bitboard.h"
+#include "Move.h"
 #include "Piece.h"
+
 
 class gameState {
 public:
@@ -24,6 +25,7 @@ public:
     BB friendlyBoard();
     BB enemyBoard();
     BB allPieces();
+    void moveToGameState(Move &move);
 };
 
 #endif //CHESS_CPP_GAMESTATE_H

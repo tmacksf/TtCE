@@ -9,9 +9,8 @@
 class moveGen {
 public:
     moveGen();
-    std::vector<gameState> *legalMoves(gameState gc);
-    std::vector<gameState> *pseudoLegalMoves(gameState gc);
-    void generatePawnMoves(gameState gc);
+    std::vector<gameState> *legalMoves(gameState &gc);
+    void pseudoLegalMoves(gameState gc, std::vector<Move> *moves);
 
 };
 #endif //CHESS_CPP_MOVEGEN_H

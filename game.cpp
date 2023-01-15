@@ -10,12 +10,14 @@ int Game(){
     Piece pcs{};
     gameState gs{};
     Bitboard::initAttackTables();
-    gs.initialise(STARTING_FEN);
-    for (int i = 0; i < 12; i++) {
-        cout << i << " " <<gs.bitboards[i].bitCount() << endl;
-        gs.bitboards[i].printBitboard();
-    }
-    gs.printing(pcs);
+    BB testing = 0xFF00ULL;
 
+    while (testing) {
+        int shift = Bitboard::getLeastSignificantBit(testing);
+        testing = testing >> shift;
+        cout << bitset<64>(testing) << endl;
+
+        unset_bit(testing, 0);
+    }
     return 0;
 }

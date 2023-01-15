@@ -17,9 +17,8 @@ public:
     Bitboard(){
         this->m_bitboard = 0ULL;
     }
-    Bitboard(BB b){
-        this->m_bitboard = b;
-    }
+    Bitboard(BB b) : m_bitboard(b)
+    {}
 
     // getter method
     BB getValue() const{
@@ -31,7 +30,20 @@ public:
     void setBitAt(int index);
     void unSetBitAt(int index);
     void toggleBit(int index);
+    int getLeastSignificantBit() const;
+    static int inline getLeastSignificantBit(BB b) {
+        return __builtin_ctzll(b);
+    }
     int bitCount() const;
+    // overloaded bit count to take a bitboard as an argument. Done using another method. Will test the speed of both of these later on
+    static int inline bitCount(BB b) {
+        int counter = 0;
+        while (b) {
+            counter++;
+            b &= b - 1;
+        }
+        return counter;
+    }
     // pretty printing of the bitboard
     void printBitboard() const;
 
@@ -44,7 +56,7 @@ public:
     static BB pawnMoves[2][64];
     static BB pawnAttacks[2][64];
 
-    // method to initialize attack tables
+    // methods to initialize attack tables
     static void initAttackTables();
     static void initPawnAttacks();
     static void initPawnMoves();

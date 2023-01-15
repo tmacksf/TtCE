@@ -17,7 +17,10 @@ public:
     bool castleFlag;
     bool enPassantFlag;
 
-    Move(int fromSquare, int toSquare, int piece, bool castleFlag, bool enPassantFlag);
+    Move(int fromSquare, int toSquare, int piece, bool castleFlag, bool enPassantFlag, bool captureFlag, bool doublePushFlag, bool promotedPiece)
+        : fromSquare(fromSquare), toSquare(toSquare), piece(piece), castleFlag(castleFlag), enPassantFlag(enPassantFlag),
+        captureFlag(captureFlag), doublePushFlag(doublePushFlag), promotedPiece(promotedPiece)
+    {}
 };
 
 

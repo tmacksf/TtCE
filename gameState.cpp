@@ -88,7 +88,7 @@ BB gameState::allPieces() {
 BB gameState::friendlyBoard() {
     BB friendly = 0ULL;
     for (int i = 0; i < 6; i++) {
-        friendly |= this->bitboards[i+this->turn].getValue();
+        friendly |= this->bitboards[i+6*this->turn].getValue();
     }
     return friendly;
 }
@@ -96,7 +96,21 @@ BB gameState::friendlyBoard() {
 BB gameState::enemyBoard() {
     BB enemy = 0ULL;
     for (int i = 0; i < 6; i++){
-        enemy |= this->bitboards[i+this->attacking].getValue();
+        enemy |= this->bitboards[i+6*this->attacking].getValue();
     }
     return enemy;
+}
+
+
+// this does not have to be done until after move generation but had ideas so might as well do it now
+void gameState::moveToGameState(Move &move) {
+    // done on a copy of the parent game state to create a child game state based on a move
+    bitboards[move.piece].unSetBitAt(move.fromSquare);
+    bitboards[move.piece].setBitAt(move.toSquare);
+    if (move.castleFlag) {
+        // set the castle index
+    }
+    if (move.enPassantFlag) {
+        // this->enPassantSquare = ;
+    }
 }
