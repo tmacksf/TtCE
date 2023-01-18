@@ -62,9 +62,9 @@ enum Color : int {
 };
 
 // enum for files, don't need one for rank because it's a number already
-enum Files : int {
+/*enum Files : int {
     a, b, c, d, e, f, g, h
-};
+};*/
 
 enum Board : int {
     // starting with h1 is zero
@@ -91,6 +91,30 @@ enum Direction : int {
 static const Direction allDirections[] = {NORTH, SOUTH, EAST, WEST, NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
 static const Direction squareDirections[] = {NORTH, SOUTH, EAST, WEST};
 static const Direction diagonalDirections[] = {NORTH_EAST, NORTH_WEST, SOUTH_WEST, SOUTH_EAST};
+
+enum PieceTypes : int {
+    KING,
+    QUEEN,
+    ROOK,
+    BISHOP,
+    KNIGHT,
+    PAWN
+};
+
+enum Pieces : int {
+    K,
+    Q,
+    R,
+    B,
+    N,
+    P,
+    k,
+    q,
+    r,
+    b,
+    n,
+    p
+};
 
 // delete later
 static void printBitString(BB bitboard) {

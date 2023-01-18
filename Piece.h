@@ -14,33 +14,9 @@ class Piece {
 public:
     Piece ();
 
-    enum PieceTypes : int {
-        KING,
-        QUEEN,
-        ROOK,
-        BISHOP,
-        KNIGHT,
-        PAWN
-    };
-
-    enum Pieces : int {
-        K,
-        Q,
-        R,
-        B,
-        N,
-        P,
-        k,
-        q,
-        r,
-        b,
-        n,
-        p
-    };
-
-    static std::unordered_map<Pieces, char> pieceChars;
+    static std::unordered_map<int, char> pieceChars;
     // this can be an array
-    static std::unordered_map<char, Pieces> charsPiece;
+    static std::unordered_map<char, int> charsPiece;
 
     static void initMaps();
     static char getChar(int p);

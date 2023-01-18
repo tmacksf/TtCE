@@ -29,6 +29,9 @@ public:
     int getBitAt(int index) const;
     void setBitAt(int index);
     void unSetBitAt(int index);
+    static BB inline unSetBitAt(BB bBoard, int index) {
+        return (bBoard &= ~(1ULL << index));
+    }
     void toggleBit(int index);
     int getLeastSignificantBit() const;
     static int inline getLeastSignificantBit(BB b) {

@@ -81,13 +81,13 @@ void Bitboard::initPawnAttacks() {
         // white pawn attacks
         (i % 8 == 0) ? : attacks |= 1ULL << (i + NORTH_EAST);
         ((i+1) % 8 == 0) ? : attacks |= 1ULL << (i + NORTH_WEST);
-        Bitboard::pawnAttacks[WHITE][i];
+        Bitboard::pawnAttacks[WHITE][i] = attacks;
         attacks = 0ULL;
 
         // black pawn attacks
         (i % 8 == 0) ? : attacks |= 1ULL << (i + SOUTH_EAST);
         ((i+1) % 8 == 0) ? : attacks |= 1ULL << (i + SOUTH_WEST);
-        Bitboard::pawnAttacks[BLACK][i];
+        Bitboard::pawnAttacks[BLACK][i] = attacks;
     }
 }
 
