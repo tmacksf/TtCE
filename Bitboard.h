@@ -40,12 +40,7 @@ public:
     int bitCount() const;
     // overloaded bit count to take a bitboard as an argument. Done using another method. Will test the speed of both of these later on
     static int inline bitCount(BB b) {
-        int counter = 0;
-        while (b) {
-            counter++;
-            b &= b - 1;
-        }
-        return counter;
+        return _mm_popcnt_u64(b);
     }
     // pretty printing of the bitboard
     void printBitboard() const;
@@ -68,6 +63,8 @@ public:
     static void initRookAttacks();
     static void initQueenAttacks();
     static void initKingAttacks();
+
+    // need to add way to generate on the fly
 
     // making it easier to do generation of moves by segmenting the generation of attack
     static BB rayAttack(Direction direction, int index, int depth);

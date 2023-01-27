@@ -20,7 +20,7 @@ public:
     int enPassantSquare = -1; // index of the en passant square activated when a pawn is double pushed
 
     // member functions
-    void printing(Piece pcs);
+    void printing();
     void initialise(std::string fen);
     BB friendlyBoard();
     BB enemyBoard();

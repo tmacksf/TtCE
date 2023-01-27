@@ -9,9 +9,20 @@
 class moveGen {
 public:
     moveGen()= default;
-    static void legalMoves(gameState gs, std::vector<Move> *moves);
-    static void pseudoLegalMoves(gameState gs, std::vector<Move> *moves);
+    static void legalMoves(gameState gs, std::vector<Move> &moves);
+    static void pseudoLegalMoves(gameState gs, std::vector<Move> &moves);
+
     // might want to make these inline to reduce function call overhead
-    static void pawnMoves(gameState gs, std::vector<Move> *moves);
+
+    // leapers
+    static void pawnMoves(int turn, BB pawns, BB allPieces, BB friendlyPieces, std::vector<Move> &moves);
+    static void pawnAttacks(int turn, int enPassantSquare, BB pawns, BB allPieces, BB friendlyPieces, std::vector<Move> &moves);
+    static void knightMoves(int turn, BB knights, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
+    static void kingMoves(int turn, BB king, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
+
+    // sliding attacks
+    static void rookMoves();
+    static void bishopMoves();
+    static void queenMoves();
 };
 #endif //CHESS_CPP_MOVEGEN_H

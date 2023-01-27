@@ -120,7 +120,7 @@ void Bitboard::initKingAttacks() {
             if (
                     (index < 8 and (d == SOUTH or d == SOUTH_WEST or d == SOUTH_EAST)) or
                     (index % 8 == 0 and (d == EAST or d == SOUTH_EAST or d == NORTH_EAST)) or
-                    (index+1) % 8 == 0 and (d == WEST or d == SOUTH_WEST or d == NORTH_WEST) or
+                    ((index+1) % 8 == 0 and (d == WEST or d == SOUTH_WEST or d == NORTH_WEST)) or
                     (index >= 56 and (d == NORTH or d == NORTH_WEST or d == NORTH_EAST))
                 )
             {
@@ -143,6 +143,7 @@ void Bitboard::initRookAttacks() {
             moves |= ranks[rank];
             moves |= files[file];
             moves ^= position;
+            moves &= outerRing;
             Bitboard::rookMoves[index] = moves;
         }
     }
@@ -158,6 +159,7 @@ void Bitboard::initBishopAttacks() {
             position = 1ULL << index;
 
             if (rank >= file) {
+                // shifting the predefined diagonal which is the bottom right to top left diagonal to get north-west moves
                 moves |= rightLeft << 8 * (rank - file);
             }
             else {
@@ -172,6 +174,7 @@ void Bitboard::initBishopAttacks() {
                 moves |= leftRight << 8 * (file - extra);
             }
             moves ^= position;
+            moves &= outerRing;
             Bitboard::bishopMoves[index] = moves;
         }
     }
@@ -219,6 +222,7 @@ void Bitboard::initQueenAttacks() {
             moves |= files[file];
 
             moves ^= position;
+            moves &= outerRing;
             Bitboard::queenMoves[index] = moves;
         }
     }

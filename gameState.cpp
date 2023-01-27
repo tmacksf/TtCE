@@ -54,14 +54,14 @@ void gameState::initialise(std::string fen) {
     }
 }
 
-void gameState::printing(Piece pcs) {
+void gameState::printing() {
     std::string outString;
     int counter = 0;
     for (int i = 63; i >= 0; i--) {
         int flag = 0;
         for (int j = 0; j < 12; j ++) {
             if (this->bitboards[j].getBitAt(i) == 1) {
-                outString.append(1, pcs.getChar(j));
+                outString.append(1, pieceToChar[j]);
                 flag = 1;
             }
         }
