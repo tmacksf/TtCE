@@ -4,7 +4,7 @@
 
 #ifndef CHESS_CPP_MOVE_H
 #define CHESS_CPP_MOVE_H
-#include "Bitboard.h"
+#include "Magics.h"
 
 class Move {
 public:

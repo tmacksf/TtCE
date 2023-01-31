@@ -13,7 +13,6 @@ class Piece {
     
 public:
     Piece ();
-
     static std::unordered_map<int, char> pieceChars;
     // this can be an array
     static std::unordered_map<char, int> charsPiece;
@@ -21,7 +20,6 @@ public:
     static void initMaps();
     static char getChar(int p);
     static int getInt(char c);
-
 };
 
 #endif //CHESS_CPP_PIECE_H

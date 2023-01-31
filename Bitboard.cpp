@@ -45,7 +45,7 @@ void Bitboard::printBitboard() const {
         std::cout << 8-file;
         std::cout << " ";
         for (int rank = 0; rank < 8; rank ++) {
-            std::cout << Bitboard::getBitAt(63 - file * 8 - rank);
+            std::cout << getBitAt(63 - file * 8 - rank);
             std::cout << ' ';
         }
         std::cout << std::endl;
@@ -54,9 +54,6 @@ void Bitboard::printBitboard() const {
 
 // initialize attack tables
 BB Bitboard::kingMoves[64];
-BB Bitboard::queenMoves[64];
-BB Bitboard::rookMoves[64];
-BB Bitboard::bishopMoves[64];
 BB Bitboard::knightMoves[64];
 BB Bitboard::pawnMoves[2][64];
 BB Bitboard::pawnAttacks[2][64];
@@ -65,9 +62,6 @@ void Bitboard::initAttackTables() {
     Bitboard::initPawnMoves();
     Bitboard::initPawnAttacks();
     Bitboard::initKnightAttacks();
-    Bitboard::initBishopAttacks();
-    Bitboard::initRookAttacks();
-    Bitboard::initQueenAttacks();
     Bitboard::initKingAttacks();
 }
 
@@ -81,13 +75,13 @@ void Bitboard::initPawnAttacks() {
         // white pawn attacks
         (i % 8 == 0) ? : attacks |= 1ULL << (i + NORTH_EAST);
         ((i+1) % 8 == 0) ? : attacks |= 1ULL << (i + NORTH_WEST);
-        Bitboard::pawnAttacks[WHITE][i] = attacks;
+        pawnAttacks[WHITE][i] = attacks;
         attacks = 0ULL;
 
         // black pawn attacks
         (i % 8 == 0) ? : attacks |= 1ULL << (i + SOUTH_EAST);
         ((i+1) % 8 == 0) ? : attacks |= 1ULL << (i + SOUTH_WEST);
-        Bitboard::pawnAttacks[BLACK][i] = attacks;
+        pawnAttacks[BLACK][i] = attacks;
     }
 }
 
@@ -101,13 +95,13 @@ void Bitboard::initPawnMoves(){
         // white pawn moves
         moves |= 1ULL << (i + NORTH);
         (i >= 16) ? : moves |= 1ULL << (i + NORTH + NORTH);
-        Bitboard::pawnMoves[WHITE][i] = moves;
+        pawnMoves[WHITE][i] = moves;
         moves = 0ULL;
 
         // black pawn moves
         moves |= 1ULL << (i + SOUTH);
         (i < 48) ? : moves |= 1ULL << (i + SOUTH + SOUTH);
-        Bitboard::pawnMoves[BLACK][i] = moves;
+        pawnMoves[BLACK][i] = moves;
     }
 }
 
@@ -126,57 +120,9 @@ void Bitboard::initKingAttacks() {
             {
                 continue;
             }
-            moves |= Bitboard::rayAttack(d, index, 1);
+            moves |= rayAttack(d, index, 1);
         }
-        Bitboard::kingMoves[index] = moves;
-    }
-}
-
-void Bitboard::initRookAttacks() {
-    BB moves;
-    BB position;
-    for (int rank = 0; rank < 8; rank++) {
-        for (int file = 0; file < 8; file++) {
-            moves = 0ULL;
-            int index = rank * 8 + file;
-            position = 1ULL << index;
-            moves |= ranks[rank];
-            moves |= files[file];
-            moves ^= position;
-            moves &= outerRing;
-            Bitboard::rookMoves[index] = moves;
-        }
-    }
-}
-
-void Bitboard::initBishopAttacks() {
-    BB moves;
-    BB position;
-    for (int rank = 0; rank < 8; rank++) {
-        for (int file = 0; file < 8; file++) {
-            moves = 0ULL;
-            int index = rank * 8 + file;
-            position = 1ULL << index;
-
-            if (rank >= file) {
-                // shifting the predefined diagonal which is the bottom right to top left diagonal to get north-west moves
-                moves |= rightLeft << 8 * (rank - file);
-            }
-            else {
-                moves |= rightLeft >> 8 * (file - rank);
-            }
-
-            int extra = 7 - rank;
-            if (extra >= file) {
-                moves |= leftRight >> 8 * (extra - file);
-            }
-            else {
-                moves |= leftRight << 8 * (file - extra);
-            }
-            moves ^= position;
-            moves &= outerRing;
-            Bitboard::bishopMoves[index] = moves;
-        }
+        kingMoves[index] = moves;
     }
 }
 
@@ -188,44 +134,6 @@ BB Bitboard::rayAttack(Direction direction, int index, int depth) {
         attacks |= 1ULL << (index + direction * (i + 1));
     }
     return attacks;
-}
-
-void Bitboard::initQueenAttacks() {
-    BB moves;
-    BB position;
-
-    for (int rank = 0; rank < 8; rank ++) {
-        for (int file = 0; file < 8; file ++) {
-            int index = rank * 8 + file;
-            position = 0ULL;
-            position |= 1ULL << index;
-            moves = 0ULL;
-
-            // diagonal moves
-            if (rank >= file) {
-                moves |= rightLeft << 8 * (rank - file);
-            }
-            else {
-                moves |= rightLeft >> 8 * (file - rank);
-            }
-
-            int extra = 7 - rank;
-            if (extra >= file) {
-                moves |= leftRight >> 8 * (extra - file);
-            }
-            else {
-                moves |= leftRight << 8 * (file - extra);
-            }
-
-            // square moves
-            moves |= ranks[rank];
-            moves |= files[file];
-
-            moves ^= position;
-            moves &= outerRing;
-            Bitboard::queenMoves[index] = moves;
-        }
-    }
 }
 
 void Bitboard::initKnightAttacks() {
@@ -255,7 +163,7 @@ void Bitboard::initKnightAttacks() {
             // down 1 right 2
             if (rank > 0 and file > 1) moves |= 1ULL << (index + EAST + SOUTH_EAST);
 
-            Bitboard::knightMoves[index] = moves;
+            knightMoves[index] = moves;
         }
     }
 }

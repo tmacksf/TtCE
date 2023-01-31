@@ -14,15 +14,17 @@ public:
 
     // might want to make these inline to reduce function call overhead
 
-    // leapers
-    static void pawnMoves(int turn, BB pawns, BB allPieces, BB friendlyPieces, std::vector<Move> &moves);
+    // leaping piece moves
+    static void pawnMoves(int turn, BB pawns, BB allPieces, std::vector<Move> &moves);
     static void pawnAttacks(int turn, int enPassantSquare, BB pawns, BB allPieces, BB friendlyPieces, std::vector<Move> &moves);
-    static void knightMoves(int turn, BB knights, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
-    static void kingMoves(int turn, BB king, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
+    static void knightMoves(int turn, BB knights, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
+    static void kingMoves(int turn, BB king, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
 
     // sliding attacks
     static void rookMoves();
     static void bishopMoves();
     static void queenMoves();
+
+    // TODO Checks
 };
 #endif //CHESS_CPP_MOVEGEN_H

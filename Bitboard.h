@@ -11,7 +11,6 @@ private:
     BB m_bitboard;
 
 public:
-    // static
 
     // constructors
     Bitboard(){
@@ -39,29 +38,28 @@ public:
     }
     int bitCount() const;
     // overloaded bit count to take a bitboard as an argument. Done using another method. Will test the speed of both of these later on
-    static int inline bitCount(BB b) {
-        return _mm_popcnt_u64(b);
+    static inline int bitCount(BB x) {
+        x -= (x >> 1) & 0x5555555555555555; //put count of each 2 bits into those 2 bits
+        x = (x & 0x3333333333333333) + ((x >> 2) & 0x3333333333333333); //put count of each 4 bits into those 4 bits
+        x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0f;  //put count of each 8 bits into those 8 bits
+        return ((x * 0x0101010101010101) >> 56);
     }
     // pretty printing of the bitboard
     void printBitboard() const;
 
     // static attack tables to do speedy move generation all but the pawn ones are the same for both colors
     static BB kingMoves[64];
-    static BB queenMoves[64];
-    static BB rookMoves[64];
-    static BB bishopMoves[64];
     static BB knightMoves[64];
     static BB pawnMoves[2][64];
     static BB pawnAttacks[2][64];
+    //rook and bishop attack tables are initialized in the magics section because they are done magically
 
     // methods to initialize attack tables
     static void initAttackTables();
     static void initPawnAttacks();
     static void initPawnMoves();
     static void initKnightAttacks();
-    static void initBishopAttacks();
-    static void initRookAttacks();
-    static void initQueenAttacks();
+
     static void initKingAttacks();
 
     // need to add way to generate on the fly
