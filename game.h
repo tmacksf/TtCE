@@ -6,5 +6,6 @@
 #define CHESS_CPP_GAME_H
 
 int Game();
+void initializeAll();
 
 #endif //CHESS_CPP_GAME_H

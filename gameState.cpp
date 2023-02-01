@@ -32,7 +32,7 @@ void gameState::initialise(std::string fen) {
         else if (fen[i] == '/') { ;
         } else {
             char temp = fenSeperated[0][i];
-            bitboards[Piece::getInt(temp)].setBitAt(boardPos);
+            bitboards[charToPiece[temp]].setBitAt(boardPos);
             boardPos -= 1;
         }
     }
@@ -52,6 +52,14 @@ void gameState::initialise(std::string fen) {
         if (fenSeperated[2][i] == 'k') this->castling[2] = true;
         if (fenSeperated[2][i] == 'q') this->castling[3] = true;
     }
+
+    int enPSquare;
+    for (i = 0; i < fenSeperated[3].length(); i++) {
+        // TODO need to add en passant square
+    }
+    this->enPassantSquare = enPSquare;
+
+    // TODO half move counter and full move counter
 }
 
 void gameState::printing() {

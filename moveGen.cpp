@@ -29,12 +29,14 @@ void moveGen::pseudoLegalMoves(gameState gs, std::vector<Move> &moves) {
     // TODO sliding pieces
     // Sliding pieces
 
-    /*rookMoves();
+    BB rooks = gs.bitboards[ROOK + 6 * turn].getValue();
+    rookMoves(turn, rooks, allPieces, friendlyPieces, enemyPieces, moves);
 
-    bishopMoves();
+    BB bishops = gs.bitboards[BISHOP + 6* turn].getValue();
+    bishopMoves(turn, bishops, allPieces, friendlyPieces, enemyPieces, moves);
 
-    queenMoves();*/
-
+    BB queens = gs.bitboards[QUEEN + 6*turn].getValue();
+    queenMoves(turn, queens, allPieces, friendlyPieces, enemyPieces, moves);
 }
 
 void moveGen::legalMoves(gameState gs, std::vector<Move> &moves) {
@@ -127,14 +129,9 @@ void moveGen::knightMoves(int turn, BB knights, BB friendlyPieces, BB enemyPiece
                 unset_bit(knightMoves, knightAttackIndex);
                 continue;
             }
-            bool captureFlag = false;
-            // TODO captureFlag = enemyPieces & (1ULL << knightAttackIndex) because this will return non-zero if it's a capture resulting in less branching
-            if (enemyPieces & (1ULL << knightAttackIndex)){
-                captureFlag = true;
-            }
+            bool captureFlag = enemyPieces & (1ULL << knightAttackIndex);
 
-            Move move{knightIndex, knightAttackIndex, KNIGHT + 6 * turn, false, false, captureFlag, false, false};
-            moves.push_back(move);
+            moves.emplace_back(knightIndex, knightAttackIndex, KNIGHT + 6 * turn, false, false, captureFlag, false, false);
             unset_bit(knightMoves, knightAttackIndex);
         }
         unset_bit(knights, knightIndex);
@@ -153,13 +150,69 @@ void moveGen::kingMoves(int turn, BB king, BB friendlyPieces, BB enemyPieces, st
             unset_bit(kingMoves, kingMoveIndex);
             continue;
         }
-        bool captureFlag = false;
-        // TODO same here as the knight moves where a capture would result in a number and a non capture would lead to 0
-        if (enemyPieces & (1ULL << kingMoveIndex)) {
-            captureFlag = true;
-        }
-        Move move{kingIndex, kingMoveIndex, KING + 6 * turn, false, false, captureFlag, false, false};
-        moves.push_back(move);
+        bool captureFlag = enemyPieces & (1ULL << kingMoveIndex);
+
+        moves.emplace_back(kingIndex, kingMoveIndex, KING + 6 * turn, false, false, captureFlag, false, false);
         unset_bit(kingMoves, kingMoveIndex);
+    }
+}
+
+void moveGen::rookMoves(int turn, BB rooks, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves) {
+    int rookIndex;
+    while (rooks) {
+        // cycle through rooks
+        rookIndex = Bitboard::getLeastSignificantBit(rooks);
+
+        BB rookMoves = Magics::getRookAttacks(rookIndex, allPieces);
+
+        // removing overlap with friendly pieces
+        rookMoves ^= rookMoves & friendlyPieces;
+        BB moveIndex;
+        while (rookMoves) {
+            moveIndex = Bitboard::getLeastSignificantBit(rookMoves);
+
+            bool captureFlag = (1ULL << moveIndex) & enemyPieces;
+            // using emplace back to avoid copies
+            moves.emplace_back(rookIndex, moveIndex, ROOK + 6*turn, false, false, captureFlag, false, false);
+            unset_bit(rookMoves, moveIndex);
+        }
+        unset_bit(rooks, rookIndex);
+    }
+}
+
+void moveGen::bishopMoves(int turn, BB bishops, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves) {
+    int bishopIndex;
+    while (bishops) {
+        bishopIndex = Bitboard::getLeastSignificantBit(bishops);
+        BB bishopMoves = Magics::getBishopAttacks(bishopIndex, allPieces);
+
+        bishopMoves ^= bishopMoves & friendlyPieces;
+        BB moveIndex;
+        while (bishopMoves) {
+            moveIndex = Bitboard::getLeastSignificantBit(bishopMoves);
+            bool captureFlag = (1ULL << moveIndex) & enemyPieces;
+
+            moves.emplace_back(bishopIndex, moveIndex, BISHOP + 6*turn, false, false, captureFlag, false, false);
+            unset_bit(bishopMoves, moveIndex);
+        }
+        unset_bit(bishops, bishopIndex);
+    }
+}
+
+void moveGen::queenMoves(int turn, BB queens, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves) {
+
+    int queenIndex;
+    while (queens) {
+        queenIndex = Bitboard::getLeastSignificantBit(queens);
+        BB queenMoves = Magics::getBishopAttacks(queenIndex, allPieces) | Magics::getRookAttacks(queenIndex, allPieces);
+        queenMoves ^= queenMoves & friendlyPieces;
+        BB moveIndex;
+        while (queenMoves) {
+            moveIndex = Bitboard::getLeastSignificantBit(queenMoves);
+            bool captureFlag = (1ULL << moveIndex) & enemyPieces;
+            moves.emplace_back(queenIndex, moveIndex, QUEEN + 6*turn, false, false, captureFlag, false, false);
+            unset_bit(queenMoves, moveIndex);
+        }
+        unset_bit(queens, queenIndex);
     }
 }

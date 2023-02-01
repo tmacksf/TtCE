@@ -6,14 +6,12 @@
 #define CHESS_CPP_GAMESTATE_H
 
 #include "Move.h"
-#include "Piece.h"
-
 
 class gameState {
 public:
     gameState();
 
-    Bitboard bitboards[12]; // order: K, Q, R, B, N, P, k, q, r, m_bitboard, n, p
+    Bitboard bitboards[12]; // order: K, Q, R, B, N, P, k, q, r, b, n, p
     Color turn;
     Color attacking;
     bool castling[4]; // order: white king side, white queen side, black king side, white king side

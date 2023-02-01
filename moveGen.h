@@ -21,9 +21,9 @@ public:
     static void kingMoves(int turn, BB king, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
 
     // sliding attacks
-    static void rookMoves();
-    static void bishopMoves();
-    static void queenMoves();
+    static void rookMoves(int turn, BB rooks, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
+    static void bishopMoves(int turn, BB bishops, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
+    static void queenMoves(int turn, BB queens, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
 
     // TODO Checks
 };

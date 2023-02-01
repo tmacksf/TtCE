@@ -134,9 +134,13 @@ const char pieceToChar[] = {
     'k', 'q', 'r', 'b', 'n', 'p'
 };
 
+const int charToPiece[] {
+    ['K'] = K, ['Q'] = Q, ['R'] = R, ['B'] = B, ['N'] = N, ['P'] = P,
+    ['k'] = k, ['q'] = q, ['r'] = r, ['b'] = b, ['n'] = n, ['p'] = p
+};
+
 // delete later
 static void printBitString(BB bitboard) {
-    std::cout << "  a b c d e f g h" << std::endl;
     for (int file = 0; file < 8; file ++) {
         std::cout << 8-file;
         std::cout << " ";
@@ -146,6 +150,7 @@ static void printBitString(BB bitboard) {
         }
         std::cout << std::endl;
     }
+    std::cout << "  a b c d e f g h" << std::endl;
     std::printf("\n");
 }
 
