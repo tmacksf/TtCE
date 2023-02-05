@@ -23,6 +23,8 @@ typedef uint64_t BB;
 #define unset_bit(bBoard, index) (bBoard &= ~(1ULL << index))
 #define get_bit(bBoard, index) ((bBoard & 1ULL << index) ? 1 : 0)
 
+#define MOVE_RESERVE 16;
+
 // all files, ranks, etc
 const BB hFile = 0x0101010101010101ULL;
 const BB gFile = hFile << 1;

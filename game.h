@@ -5,6 +5,8 @@
 #ifndef CHESS_CPP_GAME_H
 #define CHESS_CPP_GAME_H
 
+#include "moveGen.h"
+
 int Game();
 void initializeAll();
 

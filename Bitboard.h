@@ -20,7 +20,7 @@ public:
     {}
 
     // getter method
-    BB getValue() const{
+    BB inline getValue() const{
         return this->m_bitboard;
     }
 

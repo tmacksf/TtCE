@@ -13,7 +13,7 @@ public:
     int piece;
     bool captureFlag;
     bool doublePushFlag;
-    bool promotedPiece;
+    int promotedPiece; // going to have this as an int which specifies the type of piece being promoted to
     bool castleFlag;
     bool enPassantFlag;
 
@@ -21,6 +21,16 @@ public:
         : fromSquare(fromSquare), toSquare(toSquare), piece(piece), castleFlag(castleFlag), enPassantFlag(enPassantFlag),
         captureFlag(captureFlag), doublePushFlag(doublePushFlag), promotedPiece(promotedPiece)
     {}
+
+    void printMove() const {
+        std::cout << "Piece: " << pieceToChar[piece] << " From: " << boardMap[fromSquare] << boardMap[toSquare];
+        if (captureFlag) std::cout << " Capture";
+        if (doublePushFlag) std::cout << " Pawn double push";
+        if (promotedPiece) std::cout << " Pawn promotion";
+        if (castleFlag) std::cout << " Castle";
+        if (enPassantFlag) std::cout << " En passant";
+        std::cout << "\n";
+    }
 };
 
 

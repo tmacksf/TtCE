@@ -9,22 +9,20 @@
 class moveGen {
 public:
     moveGen()= default;
-    static void legalMoves(gameState gs, std::vector<Move> &moves);
-    static void pseudoLegalMoves(gameState gs, std::vector<Move> &moves);
+    static void legalMoves(const gameState &gs, std::vector<Move> &moves);
+    static void pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves);
 
     // might want to make these inline to reduce function call overhead
 
     // leaping piece moves
     static void pawnMoves(int turn, BB pawns, BB allPieces, std::vector<Move> &moves);
-    static void pawnAttacks(int turn, int enPassantSquare, BB pawns, BB allPieces, BB friendlyPieces, std::vector<Move> &moves);
+    static void pawnAttacks(int turn, int enPassantSquare, BB pawns, BB enemyPieces, std::vector<Move> &moves);
     static void knightMoves(int turn, BB knights, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
-    static void kingMoves(int turn, BB king, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
+    static void kingMoves(const gameState &gs, std::vector<Move> &moves);
 
     // sliding attacks
     static void rookMoves(int turn, BB rooks, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
     static void bishopMoves(int turn, BB bishops, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
     static void queenMoves(int turn, BB queens, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
-
-    // TODO Checks
 };
 #endif //CHESS_CPP_MOVEGEN_H
