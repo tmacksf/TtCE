@@ -3,12 +3,11 @@
 //
 #include "Testing.h"
 
-int main(){
-    Game();
-    /*Testing test{};
-    gameState gs{};
-    gs.initialise(STARTING_FEN);
-    std::cout << test.Perft(gs, 2);*/
+using namespace std;
 
+int main(){
+    initializeMoveGenerationInformation();
+    Testing::AllTests();
+    //Game();
     return 0;
 }

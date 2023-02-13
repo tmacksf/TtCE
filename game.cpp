@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void initializeAll() {
+void initializeMoveGenerationInformation() {
     Bitboard::initAttackTables();
     Magics::generateSlidingAttackTables();
 }
@@ -14,29 +14,36 @@ void initializeAll() {
 int Game(){
     gameState gs{};
     // need to do these two things before the game starts so need to make these a function and have it run at beginning
-    initializeAll();
-    gs.initialise(STARTING_FEN);
-    //gs.initialise("rnb1kbnr/pppp1ppp/4q3/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
-    //gs.initialise("4k3/8/8/4p3/2p5/1B4B1/8/R3K3 w Q - 0 1");
+    /*gs.initialise("r3k2r/p2pqNb1/bnp1pnp1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 2");
 
+    vector<Move> moves;
+    moveGen::legalMoves(gs, moves);
+    gs.makeMove(moves[43]);
+    moves.clear();
+    gs.printing();
+    moveGen::legalMoves(gs, moves);
+    for (auto m : moves) m.printMove();
+    cout << moves.size() << endl;
+    gs.makeMove(moves[38]);
+    gs.printing();*/
 
-    vector<Move> moveVec;
-    moveVec.reserve(32);
-    moveGen::legalMoves(gs, moveVec);
-    gs.makeMove(moveVec[0]);
-    cout << "Turn: " << gs.turn << " Attacking: "<< gs.attacking << endl;
-    vector<Move> nextMoves;
-    nextMoves.reserve(32);
+    /*//gs.initialise("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
 
-    auto start = chrono::steady_clock::now();
-    moveGen::legalMoves(gs, nextMoves);
-    auto end = chrono::steady_clock::now();
-    auto diff = end - start;
-    cout << chrono::duration <double, nano> (diff).count() << " ns" << endl;
-    cout << moveVec.size() << endl;
-    for (Move b : nextMoves) {
-        b.printMove();
-    }
+    int total = 0;
+    vector<Move> mv;
+    moveGen::legalMoves(gs, mv);
+
+    for (auto m :mv) m.printMove();
+    *//*for (auto m : moves) {
+        vector<Move> moveVec;
+        //m.printMove();
+        gameState gsCopy = gs;
+        gsCopy.makeMove(m);
+        moveGen::legalMoves(gsCopy, moveVec);
+        gsCopy.printing();
+        for (auto mv: moveVec) mv.printMove();
+        total += moveVec.size();
+    }*/
 
     return 0;
 }

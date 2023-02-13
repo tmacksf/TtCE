@@ -97,6 +97,10 @@ public:
         blockers >>= 64 - bishopBitCounts[square];
         return bishopAttacks[square][blockers];
     }
+
+    static inline BB getQueenAttacks(int square, BB blockers) {
+        return getBishopAttacks(square, blockers) | getRookAttacks(square, blockers);
+    }
 };
 
 

@@ -8,6 +8,6 @@
 #include "moveGen.h"
 
 int Game();
-void initializeAll();
+void initializeMoveGenerationInformation();
 
 #endif //CHESS_CPP_GAME_H

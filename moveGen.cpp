@@ -4,62 +4,122 @@
 
 #include "moveGen.h"
 
-void moveGen::pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves) {
-    int turn = gs.turn;
-    BB allPieces = gs.allPieces();
-    BB friendlyPieces = gs.friendlyBoard();
-    BB enemyPieces = gs.enemyBoard();
-
-    // TODO optimize passing values and references so we are passing pointers and not copies of values (in some cases passing by value is necessary)
-    // we start with leaping piece moves. Pawn, knight, king
-    // pawn attacks and moves
-    BB pawns = gs.bitboards[PAWN + 6 * turn].getValue();
-    int enPassantSquare = gs.enPassantSquare;
-    pawnMoves(turn, pawns, friendlyPieces, moves);
-    pawnAttacks(turn, enPassantSquare, pawns, enemyPieces, moves);
-
-    // knight moves
-    BB knights = gs.bitboards[KNIGHT + 6 * turn].getValue();
-    knightMoves(turn, knights, friendlyPieces, enemyPieces, moves);
-
-    // king moves
-    kingMoves(gs, moves);
-
-    // Sliding pieces
-    BB rooks = gs.bitboards[ROOK + 6 * turn].getValue();
-
-    rookMoves(turn, rooks, allPieces, friendlyPieces, enemyPieces, moves);
-
-    BB bishops = gs.bitboards[BISHOP + 6 * turn].getValue();
-    bishopMoves(turn, bishops, allPieces, friendlyPieces, enemyPieces, moves);
-
-    BB queens = gs.bitboards[QUEEN + 6 * turn].getValue();
-    queenMoves(turn, queens, allPieces, friendlyPieces, enemyPieces, moves);
-}
-
 // TODO optimize a lot (There is a ton to do here but this is an easy start)
 void moveGen::legalMoves(const gameState &gs, std::vector<Move> &legalMoves) {
     std::vector<Move> pseudoLegalMoveVector;
     pseudoLegalMoveVector.reserve(16);
+    legalMoves.reserve(pseudoLegalMoveVector.size());
+
+    /*int checkNum = gs.isKingInCheck(gs.attacking);
+    // if king is in check
+    if (checkNum) {
+        if (checkNum > 1) {
+            kingMoves(gs, pseudoLegalMoveVector);
+            for (Move m : pseudoLegalMoveVector) {
+                gameState gsCopy = gs;
+                gsCopy.makeMove(m);
+                if (!gsCopy.isKingInCheck(gs.attacking)) legalMoves.push_back(m);
+            }
+        }
+        else {
+            // need to generate evasions here
+        }
+    }
+    else {
+        // TODO something like follows
+        // get location of king
+        int kingSquare = gs.getPieceBitboard(KING, gs.turn);
+
+        // ignores friendly pieces to look for attacks on the king
+        BB maybePinned = Magics::getQueenAttacks(kingSquare, gs.enemyBoard());
+        // rough way of doing checks could be to see if 1ULL << fromSquare is on the king line. Only then will the move be made and there will be a check to see if the king is in check
+
+        pseudoLegalMoves(gs, pseudoLegalMoveVector);
+
+        for (Move move : pseudoLegalMoveVector) {
+            gameState gsCopy = gs;
+            gsCopy.makeMove(move);
+            if (!gsCopy.isKingInCheck(gs.attacking)) {
+                legalMoves.push_back(move);
+            }
+        }
+    }*/
+
     pseudoLegalMoves(gs, pseudoLegalMoveVector);
-    legalMoves.reserve(sizeof(pseudoLegalMoveVector));
+
     for (Move move : pseudoLegalMoveVector) {
         gameState gsCopy = gs;
         gsCopy.makeMove(move);
-        if (!gsCopy.isKingInCheck()) {
+        if (!gsCopy.isKingInCheck(gs.attacking)) {
             legalMoves.push_back(move);
         }
     }
 }
 
-// need to add checking for en passant moves in here too as there is a flag in the game-state, so we can just get the coords from that
+void moveGen::pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves) {
+    Color turn = gs.turn;
+
+    // TODO optimize passing values and references so we are passing pointers and not copies of values (in some cases passing by value is necessary)
+    // we start with leaping piece moves. Pawn, knight, king
+    // pawn attacks and moves
+    if (turn) {
+        moveGen::pawnMoves<BLACK, Quiet>(gs, moves);
+        moveGen::pawnMoves<BLACK, Captures>(gs, moves);
+        moveGen::pieceMoves<BLACK, QUEEN, All>(gs, moves);
+        moveGen::pieceMoves<BLACK, ROOK, All>(gs, moves);
+        moveGen::pieceMoves<BLACK, BISHOP, All>(gs, moves);
+        moveGen::pieceMoves<BLACK, KNIGHT, All>(gs, moves);
+    }
+    else {
+        moveGen::pawnMoves<WHITE, Quiet>(gs, moves);
+        moveGen::pawnMoves<WHITE, Captures>(gs, moves);
+        moveGen::pieceMoves<WHITE, QUEEN, All>(gs, moves);
+        moveGen::pieceMoves<WHITE, ROOK, All>(gs, moves);
+        moveGen::pieceMoves<WHITE, BISHOP, All>(gs, moves);
+        moveGen::pieceMoves<WHITE, KNIGHT, All>(gs, moves);
+    }
+
+    kingMoves(gs, moves);
+}
+
+void moveGen::kingMoves(const gameState &gs, std::vector<Move> &moves) {
+    Color turn = gs.turn;
+    Color attacking = ~turn;
+    BB king = gs.bitboards[KING + turn * 6].getValue();
+    BB friendlyPieces = gs.friendlyBoard();
+    BB enemyPieces = gs.enemyBoard();
+    int kingIndex = Bitboard::getLeastSignificantBit(king);
+    BB kingAttacks = Bitboard::kingMoves[kingIndex] ^ (Bitboard::kingMoves[kingIndex] & friendlyPieces);
+
+    bool captureFlag = false;
+    while (kingAttacks) {
+        int kingMoveIndex = pop_lsb(kingAttacks);
+        if ((1ULL << kingMoveIndex) & enemyPieces) captureFlag = true;
+        //bool captureFlag = enemyPieces & (1ULL << kingMoveIndex);
+        moves.emplace_back(kingIndex, kingMoveIndex, KING + (6 * turn), false, false, captureFlag, false, false);
+        captureFlag = false;
+    }
+    // castling
+    // if it is black's turn
+    // todo make sure that the king cannot castle while in check
+    if (!gs.isKingInCheck(attacking)) {
+        if (turn) kingCastling<BLACK>(kingIndex, gs, moves);
+        else kingCastling<WHITE>(kingIndex, gs, moves);
+    }
+}
+
+/*
 void moveGen::pawnMoves(int turn, BB pawns, BB allPieces, std::vector<Move> &moves) {
+    // setting up a bunch of variables which will help with the speed of
+    BB promotionRank = 0xFF00000000000000ULL;
+
+    if (turn) {
+        promotionRank = 0xFFULL;
+    }
+
     int pawnIndex;
     while (pawns) {
         pawnIndex = Bitboard::getLeastSignificantBit(pawns);
-
-        // getting the move table for the pawn at the position
-        // BB moves_bb = Bitboard::pawnMoves[turn][pawnIndex] ^ (Bitboard::pawnMoves[turn][pawnIndex] & allPieces);
         BB moves_bb = Bitboard::pawnMoves[turn][pawnIndex];
         int moveIndex;
         bool doublePush = false;
@@ -69,6 +129,18 @@ void moveGen::pawnMoves(int turn, BB pawns, BB allPieces, std::vector<Move> &mov
             // no need to check for double push if there is a piece in front
             if (allPieces & (1ULL << moveIndex)) {
                 break;
+            }
+
+            // handling pawn promotions (Need to do this a better way in the future)
+            // added unlikely because pawn promotions are kinda rare
+            if (moveIndex & promotionRank) [[unlikely]]{
+                // adding 4 moves for the different types of promotions
+                moves.emplace_back(pawnIndex, moveIndex, PAWN + 6*turn, false, false, false, false, QUEEN + 6*turn);
+                moves.emplace_back(pawnIndex, moveIndex, PAWN + 6*turn, false, false, false, false, ROOK + 6*turn);
+                moves.emplace_back(pawnIndex, moveIndex, PAWN + 6*turn, false, false, false, false, BISHOP + 6*turn);
+                moves.emplace_back(pawnIndex, moveIndex, PAWN + 6*turn, false, false, false, false, KNIGHT + 6*turn);
+                unset_bit(moves_bb, moveIndex);
+                continue;
             }
 
             moves.emplace_back(pawnIndex, moveIndex, PAWN + 6*turn, false, false, false, doublePush, false);
@@ -82,6 +154,10 @@ void moveGen::pawnMoves(int turn, BB pawns, BB allPieces, std::vector<Move> &mov
 }
 
 void moveGen::pawnAttacks(int turn, int enPassantSquare, BB pawns, BB enemyPieces, std::vector<Move> &moves) {
+    BB promotionRank = rank7;
+    if (turn) {
+        promotionRank = rank2;
+    }
     int pawnIndex;
     // getting bitboard of the square which the pawn can move to after an opposing pawn has double pushed allowing for en passant
     BB enPassantBitboard = 0ULL;
@@ -100,7 +176,17 @@ void moveGen::pawnAttacks(int turn, int enPassantSquare, BB pawns, BB enemyPiece
 
             if (pawnAttackIndex == enPassantSquare) enPassantFlag = true;
 
-            moves.emplace_back(pawnIndex, pawnAttackIndex, PAWN + 6 * turn, false, enPassantFlag, true, false, false);
+            if (pawnAttackIndex & promotionRank) [[unlikely]]{
+                // adding 4 moves for the different types of promotions
+                moves.emplace_back(pawnIndex, pawnAttackIndex, PAWN + 6*turn, false, false, false, false, QUEEN + 6*turn);
+                moves.emplace_back(pawnIndex, pawnAttackIndex, PAWN + 6*turn, false, false, false, false, ROOK + 6*turn);
+                moves.emplace_back(pawnIndex, pawnAttackIndex, PAWN + 6*turn, false, false, false, false, BISHOP + 6*turn);
+                moves.emplace_back(pawnIndex, pawnAttackIndex, PAWN + 6*turn, false, false, false, false, KNIGHT + 6*turn);
+                unset_bit(pawnAttacks, pawnAttackIndex);
+                continue;
+            }
+
+            moves.emplace_back(pawnIndex, pawnAttackIndex, PAWN + (6 * turn), false, enPassantFlag, true, false, false);
             // don't want to set this every time
             enPassantFlag = false;
             unset_bit(pawnAttacks, pawnAttackIndex);
@@ -118,60 +204,13 @@ void moveGen::knightMoves(int turn, BB knights, BB friendlyPieces, BB enemyPiece
         int knightAttackIndex = 0;
         while (knightMoves) {
             knightAttackIndex = Bitboard::getLeastSignificantBit(knightMoves);
+            // knightAttackIndex = pop_lsb(knightMoves);
             bool captureFlag = enemyPieces & (1ULL << knightAttackIndex);
 
             moves.emplace_back(knightIndex, knightAttackIndex, KNIGHT + 6 * turn, false, false, captureFlag, false, false);
             unset_bit(knightMoves, knightAttackIndex);
         }
         unset_bit(knights, knightIndex);
-    }
-}
-
-void moveGen::kingMoves(const gameState &gs, std::vector<Move> &moves) {
-    int turn = gs.turn;
-    BB king = gs.bitboards[KING + turn * 6].getValue();
-    BB friendlyPieces = gs.friendlyBoard();
-    BB enemyPieces = gs.enemyBoard();
-    BB allPieces = friendlyPieces | enemyPieces;
-    // TODO Castling
-    int kingIndex = Bitboard::getLeastSignificantBit(king);
-    BB kingAttacks = Bitboard::kingMoves[kingIndex] ^ (Bitboard::kingMoves[kingIndex] & friendlyPieces);
-
-    while (kingAttacks) {
-        int kingMoveIndex = Bitboard::getLeastSignificantBit(kingAttacks);
-        bool captureFlag = enemyPieces & (1ULL << kingMoveIndex);
-        moves.emplace_back(kingIndex, kingMoveIndex, KING + (6 * turn), false, false, captureFlag, false, false);
-        unset_bit(kingAttacks, kingMoveIndex);
-    }
-    // castling
-    // if it is black's turn
-    if (turn) {
-        if (gs.castling[2] and !(allPieces & (3ULL << 57))) {
-            if (!(gs.attacked(g8) | gs.attacked(f8))) {
-                moves.emplace_back(kingIndex, g8, KING+6, true, false, false, false, false);
-            }
-        }
-        if (gs.castling[3] and !(allPieces & (7ULL << 60))) {
-            if (!(gs.attacked(d8) | gs.attacked(c8))) {
-                moves.emplace_back(kingIndex, c8, KING+6, true, false, false, false, false);
-            }
-        }
-    }
-    // if it is white
-    else {
-        // king side
-        // checking to see if we can still castle and if there are no pieces in the way of castling
-        if (gs.castling[0] and !(allPieces & (3ULL << 1))) {
-            if (!(gs.attacked(g1) | gs.attacked(f1))) {
-                moves.emplace_back(kingIndex, g1, WHITE, true, false, false, false, false);
-            }
-        }
-        // queen side
-        if (gs.castling[1] and !(allPieces & (7ULL << 4))) {
-            if (!(gs.attacked(d1) | gs.attacked(c1))) {
-                moves.emplace_back(kingIndex, c1, WHITE, true, false, false, false, false);
-            }
-        }
     }
 }
 
@@ -232,4 +271,4 @@ void moveGen::queenMoves(int turn, BB queens, BB allPieces, BB friendlyPieces, B
         }
         unset_bit(queens, queenIndex);
     }
-}
+}*/

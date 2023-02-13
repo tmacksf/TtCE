@@ -69,7 +69,16 @@ void Bitboard::initPawnAttacks() {
     BB attacks;
     for (int i = 0; i < boardSize; i++) {
         attacks = 0ULL;
-        if (i < 8 or i >= 56) {
+        if (i < 8) {
+            (i % 8 == 0) ? : attacks |= 1ULL << (i + NORTH_EAST);
+            ((i+1) % 8 == 0) ? : attacks |= 1ULL << (i + NORTH_WEST);
+            pawnAttacks[WHITE][i] = attacks;
+            continue;
+        }
+        if (i >= 56) {
+            (i % 8 == 0) ? : attacks |= 1ULL << (i + SOUTH_EAST);
+            ((i+1) % 8 == 0) ? : attacks |= 1ULL << (i + SOUTH_WEST);
+            pawnAttacks[BLACK][i] = attacks;
             continue;
         }
         // white pawn attacks

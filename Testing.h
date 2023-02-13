@@ -9,9 +9,12 @@
 
 class Testing {
 public:
-    Testing() =default;
+    static int AllTests();
+    static BB Perft(gameState &gs, int depth);
+    static void perftTest(std::string fenString, int perftDepth);
+    static BB PerftAdvanced(const gameState &gs, int depth, int *extraInfo);
 
-    int Perft(const gameState &gs, int depth);
+    static BB advancedPerftDriver(gameState &gs, int depth);
 };
 
 

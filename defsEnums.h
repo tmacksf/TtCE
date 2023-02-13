@@ -62,8 +62,12 @@ const int boardSize = 64;
 enum Color : int {
     WHITE = 0,
     BLACK = 1,
-    NONE = 2,
 };
+
+// Toggle color
+constexpr Color operator~(Color c) {
+    return Color(c ^ BLACK);
+}
 
 // enum for files, don't need one for rank because it's a number already
 /*enum Files : int {
@@ -103,6 +107,11 @@ enum Direction : int {
     SOUTH_EAST = SOUTH + EAST,
     SOUTH_WEST = SOUTH + WEST
 };
+
+constexpr Direction pawn_push(Color c) {
+    return c == BLACK ? SOUTH : NORTH;
+}
+
 static const Direction allDirections[] = {NORTH, SOUTH, EAST, WEST, NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
 static const Direction squareDirections[] = {NORTH, SOUTH, EAST, WEST};
 static const Direction diagonalDirections[] = {NORTH_EAST, NORTH_WEST, SOUTH_WEST, SOUTH_EAST};
@@ -131,6 +140,15 @@ enum Pieces : int {
     p
 };
 
+enum MoveType : int {
+    All = 0,
+    Quiet = 1,
+    Captures,
+    Evasions,
+    PseudoLegal,
+    Legal,
+};
+
 const char pieceToChar[] = {
     'K', 'Q', 'R', 'B', 'N', 'P',
     'k', 'q', 'r', 'b', 'n', 'p'
@@ -140,6 +158,19 @@ const int charToPiece[] {
     ['K'] = K, ['Q'] = Q, ['R'] = R, ['B'] = B, ['N'] = N, ['P'] = P,
     ['k'] = k, ['q'] = q, ['r'] = r, ['b'] = b, ['n'] = n, ['p'] = p
 };
+
+const int charToFile[] {
+    ['a'] = 7, ['b'] = 6, ['c'] = 5, ['d'] = 4,
+    ['e'] = 3, ['f'] = 2, ['g'] = 1, ['h'] = 0
+};
+
+// Need to make sure this stuff can be run on multiple systems so may need to change the way this is done
+inline int pop_lsb(BB& b) {
+    assert(b);
+    const int s = __builtin_ctzll(b);;
+    b &= b - 1;
+    return s;
+}
 
 // delete later
 static void printBitString(BB bitboard) {

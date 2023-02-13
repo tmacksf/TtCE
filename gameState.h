@@ -12,36 +12,59 @@ public:
     gameState();
 
     Bitboard bitboards[12]; // order: K, Q, R, B, N, P, k, q, r, b, n, p
-    int turn; // color based on WHITE = 0, BLACK = 1, NONE = 2
-    int attacking;
+    Color turn; // color based on WHITE = 0, BLACK = 1, NONE = 2
+    Color attacking;
     bool castling[4]; // order: white king side, white queen side, black king side, white king side
     int enPassantSquare = -1; // index of the en passant square activated when a pawn is double pushed
 
+    // optional helper variables
+
+    // this can be used in move generation to generate evasions and blocks for that attacker
+    int attackerLocation = -1;
+
     // member functions
     void printing();
+    void stateToFen();
     void initialise(std::string fen);
 
-    BB inline friendlyBoard() const {
+    int getPieceAt(int square) {
+        int piece = 0;
+        for (Bitboard bitboard : bitboards) {
+            if (bitboard.getValue() & 1ULL << square) return piece;
+            piece += 1;
+        }
+        throw std::runtime_error("No piece at position");
+    }
+
+    [[nodiscard]] BB inline friendlyBoard() const {
         BB friendly = 0ULL;
         for (int i = 0; i < 6; i++) friendly |= bitboards[i+6*turn].getValue();
         return friendly;
     }
 
-    BB inline enemyBoard() const {
+    [[nodiscard]] BB inline enemyBoard() const {
         BB enemy = 0ULL;
         for (int i = 0; i < 6; i++) enemy |= bitboards[i+6*attacking].getValue();
         return enemy;
     }
 
-    BB inline allPieces() const {
+    [[nodiscard]] BB inline allPieces() const {
         BB all = 0ULL;
         for (Bitboard bitboard : bitboards) all |= bitboard.getValue();
         return all;
     }
 
+    [[nodiscard]] BB inline getPieceBitboard(PieceTypes pt, Color c) const {
+        return bitboards[pt + 6*c].getValue();
+    }
+
+    static int inline getPiece(PieceTypes pt, Color c) {
+        return pt + 6*c;
+    }
+
     // Move making functions
 
-    void makeMove(Move move);
+    void makeMove(const Move &move);
 
     void inline removePieceOnCapture(int square) {
         // only have to do half of the list as it is opposition
@@ -58,31 +81,33 @@ public:
     void unMakeMove(Move &move);
 
     // TODO Clean up and optimize
-    BB inline attacked(int position) const {
-        BB blockers = allPieces();
-        BB friendly = friendlyBoard();
+    // Method to see if a square is attacked, take position and attacking color
+    [[nodiscard]] int inline attacked(int position, Color attackingColor) const {
+        BB allBlockers = allPieces();
+        Color friendlyColor = ~attackingColor;
 
+        // TODO Fix this function
+        int attackers = 0;
         // leaping pieces
-        BB pawns = Bitboard::pawnAttacks[turn][position] & bitboards[PAWN + 6 * attacking].getValue();
-        BB knights = Bitboard::knightMoves[position] & bitboards[KNIGHT + 6 * attacking].getValue();
-        BB kings = Bitboard::kingMoves[position] & bitboards[KING + 6 * attacking].getValue();
+        //attackers += Bitboard::bitCount(Bitboard::pawnAttacks[friendlyColor][position] & bitboards[getPiece(PAWN, attackingColor)].getValue());
+        if (Bitboard::pawnAttacks[friendlyColor][position] & bitboards[PAWN + 6 * attackingColor].getValue()) attackers += 1;
+        if (Bitboard::knightMoves[position] & bitboards[KNIGHT + 6 * attackingColor].getValue()) attackers += 1;
+        if (Bitboard::kingMoves[position] & bitboards[KING + 6 * attackingColor].getValue()) attackers += 1;
 
         // sliding pieces
-        BB squareAttackers = bitboards[QUEEN + attacking*6].getValue() | bitboards[ROOK + attacking*6].getValue();
-        BB square = Magics::getBishopAttacks(position, blockers);
-        square = square ^ (square & friendly);
+        BB squareAttackers = bitboards[QUEEN + attackingColor*6].getValue() | bitboards[ROOK + attackingColor*6].getValue();
+        BB square = Magics::getRookAttacks(position, allBlockers);
+        if (square & squareAttackers) attackers += 1;
 
-        BB diagonalAttackers = bitboards[BISHOP + attacking*6].getValue() | bitboards[QUEEN + attacking*6].getValue();
-        BB diagonals = Magics::getRookAttacks(position, blockers);
-        diagonals = diagonals ^ (diagonals & friendly);
+        BB diagonalAttackers = bitboards[BISHOP + attackingColor*6].getValue() | bitboards[QUEEN + attackingColor*6].getValue();
+        BB diagonals = Magics::getBishopAttacks(position, allBlockers);
+        if (diagonals & diagonalAttackers) attackers += 1;
 
-        BB all = (diagonals & diagonalAttackers) | (square & squareAttackers) | pawns | knights | kings;
-
-        return all;
+        return attackers;
     }
 
-    BB inline isKingInCheck() {
-        return attacked(Bitboard::getLeastSignificantBit(bitboards[KING + turn * 6].getValue()));
+    [[nodiscard]] BB inline isKingInCheck(Color attackingColor) const {
+        return attacked(Bitboard::getLeastSignificantBit(bitboards[KING + (1-attackingColor) * 6].getValue()), attackingColor);
     }
 };
 

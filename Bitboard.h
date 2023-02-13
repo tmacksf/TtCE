@@ -16,13 +16,17 @@ public:
     Bitboard(){
         this->m_bitboard = 0ULL;
     }
-    Bitboard(BB b) : m_bitboard(b)
-    {}
 
     // getter method
     BB inline getValue() const{
         return this->m_bitboard;
+        //return this->m_bitboard;
     }
+
+    /*BB constexpr getValue() {
+        return m_bitboard;
+    }*/
+
 
     // bitwise methods
     int getBitAt(int index) const;
@@ -66,6 +70,16 @@ public:
 
     // making it easier to do generation of moves by segmenting the generation of attack
     static BB rayAttack(Direction direction, int index, int depth);
+
+
+    // Section for templates
+    // TODO add other directions for other move types
+    template<Direction D>
+    static constexpr BB shift(BB b) {
+        return D == NORTH ? b << 8 : D == SOUTH ? b >> 8 : D == SOUTH_WEST ? (b & ~aFile) >> 7 :
+        D == SOUTH_EAST ? (b & ~hFile) >> 9 : D == NORTH_EAST ? (b & ~hFile) << 7 : D == NORTH_WEST ? (b & ~aFile) << 9
+        : 0;
+    }
 };
 
 #endif //CHESS_CPP_BITBOARDS_H

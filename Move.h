@@ -17,7 +17,7 @@ public:
     bool castleFlag;
     bool enPassantFlag;
 
-    Move(int fromSquare, int toSquare, int piece, bool castleFlag, bool enPassantFlag, bool captureFlag, bool doublePushFlag, bool promotedPiece)
+    Move(int fromSquare, int toSquare, int piece, bool castleFlag, bool enPassantFlag, bool captureFlag, bool doublePushFlag, int promotedPiece)
         : fromSquare(fromSquare), toSquare(toSquare), piece(piece), castleFlag(castleFlag), enPassantFlag(enPassantFlag),
         captureFlag(captureFlag), doublePushFlag(doublePushFlag), promotedPiece(promotedPiece)
     {}
@@ -26,7 +26,7 @@ public:
         std::cout << "Piece: " << pieceToChar[piece] << " From: " << boardMap[fromSquare] << boardMap[toSquare];
         if (captureFlag) std::cout << " Capture";
         if (doublePushFlag) std::cout << " Pawn double push";
-        if (promotedPiece) std::cout << " Pawn promotion";
+        if (promotedPiece) std::cout << " Pawn promotion to: " << pieceToChar[promotedPiece];
         if (castleFlag) std::cout << " Castle";
         if (enPassantFlag) std::cout << " En passant";
         std::cout << "\n";
