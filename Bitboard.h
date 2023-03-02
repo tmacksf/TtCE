@@ -18,8 +18,8 @@ public:
     }
 
     // getter method
-    BB inline getValue() const{
-        return this->m_bitboard;
+    [[nodiscard]] BB inline getValue() const{
+        return m_bitboard;
         //return this->m_bitboard;
     }
 
@@ -36,11 +36,11 @@ public:
         return (bBoard &= ~(1ULL << index));
     }
     void toggleBit(int index);
-    int getLeastSignificantBit() const;
+    [[nodiscard]] int getLeastSignificantBit() const;
     static int inline getLeastSignificantBit(BB b) {
         return __builtin_ctzll(b);
     }
-    int bitCount() const;
+    [[nodiscard]] int bitCount() const;
     // overloaded bit count to take a bitboard as an argument. Done using another method. Will test the speed of both of these later on
     static inline int bitCount(BB x) {
         x -= (x >> 1) & 0x5555555555555555; //put count of each 2 bits into those 2 bits

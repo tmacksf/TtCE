@@ -26,7 +26,6 @@ void moveGen::legalMoves(const gameState &gs, std::vector<Move> &legalMoves) {
         }
     }
     else {
-        // TODO something like follows
         // get location of king
         int kingSquare = gs.getPieceBitboard(KING, gs.turn);
 
@@ -50,14 +49,14 @@ void moveGen::legalMoves(const gameState &gs, std::vector<Move> &legalMoves) {
     for (Move move : pseudoLegalMoveVector) {
         gameState gsCopy = gs;
         gsCopy.makeMove(move);
-        if (!gsCopy.isKingInCheck(gs.attacking)) {
+        if (!gsCopy.isKingInCheck(gs.getAttacking())) {
             legalMoves.push_back(move);
         }
     }
 }
 
 void moveGen::pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves) {
-    Color turn = gs.turn;
+    Color turn = gs.getTurn();
 
     // TODO optimize passing values and references so we are passing pointers and not copies of values (in some cases passing by value is necessary)
     // we start with leaping piece moves. Pawn, knight, king
@@ -83,9 +82,9 @@ void moveGen::pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves) {
 }
 
 void moveGen::kingMoves(const gameState &gs, std::vector<Move> &moves) {
-    Color turn = gs.turn;
+    Color turn = gs.getTurn();
     Color attacking = ~turn;
-    BB king = gs.bitboards[KING + turn * 6].getValue();
+    BB king = gs.getPieceBitboard(KING, turn);
     BB friendlyPieces = gs.friendlyBoard();
     BB enemyPieces = gs.enemyBoard();
     int kingIndex = Bitboard::getLeastSignificantBit(king);

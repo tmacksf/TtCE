@@ -9,5 +9,4 @@
 
 int Game();
 void initializeMoveGenerationInformation();
-
 #endif //CHESS_CPP_GAME_H

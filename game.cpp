@@ -16,25 +16,14 @@ int Game(){
     // need to do these two things before the game starts so need to make these a function and have it run at beginning
     /*gs.initialise("r3k2r/p2pqNb1/bnp1pnp1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 2");
 
-    vector<Move> moves;
-    moveGen::legalMoves(gs, moves);
-    gs.makeMove(moves[43]);
-    moves.clear();
-    gs.printing();
-    moveGen::legalMoves(gs, moves);
-    for (auto m : moves) m.printMove();
-    cout << moves.size() << endl;
-    gs.makeMove(moves[38]);
-    gs.printing();*/
-
-    /*//gs.initialise("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
+    //gs.initialise("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
 
     int total = 0;
     vector<Move> mv;
     moveGen::legalMoves(gs, mv);
 
     for (auto m :mv) m.printMove();
-    *//*for (auto m : moves) {
+    for (auto m : moves) {
         vector<Move> moveVec;
         //m.printMove();
         gameState gsCopy = gs;

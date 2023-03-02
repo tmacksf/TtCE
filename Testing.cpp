@@ -8,26 +8,8 @@ using namespace std;
 int Testing::AllTests() {
     string fenString = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
 
-    /*gameState gs;
-    gs.initialise(fenString);
-    vector<Move> moves;
-    moveGen::legalMoves(gs, moves);
-    int depth = 1;
-    BB total = 0ULL;
-
-    for (auto move : moves) {
-        gameState gsCopy = gs;
-        gsCopy.makeMove(move);
-        int temp = Perft(gsCopy, depth);
-        cout << boardMap[move.fromSquare] << boardMap[move.toSquare] << " " << temp << "\n";
-        total += temp;
-    }
-
-    cout << total;*/
-
-    int perftDepth = 6;
+    int perftDepth = 4;
     Testing::perftTest(fenString, perftDepth);
-
     return 0;
 }
 

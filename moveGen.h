@@ -12,11 +12,7 @@ public:
     static void legalMoves(const gameState &gs, std::vector<Move> &moves);
     static void pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves);
 
-    // might want to make these inline to reduce function call overhead
-
-    // TODO implement template based move generation for use with constexpr to make everything faster
     // leaping piece moves
-
     //static void pawnMoves(int turn, BB pawns, BB allPieces, std::vector<Move> &moves);
     //static void pawnAttacks(int turn, int enPassantSquare, BB pawns, BB enemyPieces, std::vector<Move> &moves);
     //static void knightMoves(int turn, BB knights, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
@@ -43,24 +39,24 @@ public:
         constexpr BB rookKingSide = (turn == BLACK ? 1ULL << 56 : 1ULL);
         constexpr BB rookQueenSide = (turn == BLACK ? 1ULL << 63 : 1ULL << 7);
         int rook = gameState::getPiece(ROOK, turn);
-        BB rookBitboard = gs.bitboards[rook].getValue();
+        BB rookBitboard = gs.getPieceBitboard(ROOK, turn);
 
         const BB allPieces = gs.allPieces();
 
         // king side castling
-        if (gs.castling[kingSideIndex] and !(allPieces & (kingSideOccupancy))) {
+        if (gs.getCastling(kingSideIndex) and !(allPieces & (kingSideOccupancy))) {
             // are the squares attacked
             if (rookKingSide & rookBitboard) {
-                if (!gs.attacked(kingSideSquareOne, gs.attacking) and !gs.attacked(kingSideSquareTwo, gs.attacking)) {
+                if (!gs.attacked(kingSideSquareOne, gs.getAttacking()) and !gs.attacked(kingSideSquareTwo, gs.getAttacking())) {
                 moves.emplace_back(kingIndex, kingSideSquareOne, piece, true, false, false, false, false);
                 }
             }
         }
         // queen side castling
-        if (gs.castling[queenSideIndex] and !(allPieces & queenSideOccupancy)) {
+        if (gs.getCastling(queenSideIndex) and !(allPieces & queenSideOccupancy)) {
             // are the squares attacked
             if (rookQueenSide & rookBitboard) {
-                if (!gs.attacked(queenSideSquareOne, gs.attacking) and !gs.attacked(queenSideSquareTwo, gs.attacking)) {
+                if (!gs.attacked(queenSideSquareOne, gs.getAttacking()) and !gs.attacked(queenSideSquareTwo, gs.getAttacking())) {
                     moves.emplace_back(kingIndex, queenSideSquareOne, piece, true, false, false, false, false);
                 }
             }
@@ -72,7 +68,6 @@ public:
     //static void bishopMoves(int turn, BB bishops, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
     //static void queenMoves(int turn, BB queens, BB allPieces, BB friendlyPieces, BB enemyPieces, std::vector<Move> &moves);
 
-
     // Section for templates
     template<Color turn, MoveType Type>
     static void pawnMoves(const gameState &gs, std::vector<Move> &moves) {
@@ -81,10 +76,11 @@ public:
         constexpr Direction direction = (turn == BLACK ? SOUTH : NORTH);
         constexpr Direction upRight  = (turn == WHITE ? NORTH_EAST : SOUTH_WEST);
         constexpr Direction upLeft   = (turn == WHITE ? NORTH_WEST : SOUTH_EAST);
+        constexpr BB enPassantRank = (turn == BLACK ? rank3 : rank6);
         int piece = gameState::getPiece(PAWN, turn);
 
         const BB emptySquares = ~gs.allPieces();
-        const BB pawns = gs.bitboards[piece].getValue();
+        const BB pawns = gs.getPieceBitboard(PAWN, turn);
         const BB enemyBoard = gs.enemyBoard();
 
         // setting up for pawn promotions
@@ -136,12 +132,12 @@ public:
             }
 
             // TODO handle en passant
-            if (gs.enPassantSquare != -1) {
+            if (gs.getEPSquare() != -1) {
                 // TODO add assert that its on the (relative) 6th rank
-                assert(gs.enPassantSquare < 64 and gs.enPassantSquare >= 0);
-                BB epPawns = Bitboard::pawnAttacks[~turn][gs.enPassantSquare] & pawns;
+                assert(gs.getEPSquare() < 64 and gs.getEPSquare() >= 0);
+                BB epPawns = Bitboard::pawnAttacks[~turn][gs.getEPSquare()] & pawns;
                 while (epPawns) {
-                    moves.emplace_back(pop_lsb(epPawns), gs.enPassantSquare, piece, false, true, true, false, false);
+                    moves.emplace_back(pop_lsb(epPawns), gs.getEPSquare(), piece, false, true, true, false, false);
                 }
             }
         }
