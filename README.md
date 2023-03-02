@@ -1,8 +1,7 @@
 # chess_cpp
 A chess engine written in C++ using bitboard based board representation.
 
-### File Structure:
-In Hierarchical order from the base layer to top layer. \
+### Files:
 defsEnums.h: \
 Imports definitions and dependencies which the rest of the program is reliant on.
 Also contains the enums like Color, piece, etc. 
