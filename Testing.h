@@ -11,7 +11,7 @@ class Testing {
 public:
     static int AllTests();
     static BB Perft(gameState &gs, int depth);
-    static void perftTest(std::string fenString, int perftDepth);
+    static void perftTest(const std::string &fenString, int perftDepth);
     static BB PerftAdvanced(const gameState &gs, int depth, int *extraInfo);
 
     static BB advancedPerftDriver(gameState &gs, int depth);

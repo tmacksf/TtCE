@@ -8,14 +8,17 @@ using namespace std;
 int Testing::AllTests() {
     string fenString = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
 
-    int perftDepth = 4;
-    Testing::perftTest(fenString, perftDepth);
+    int perftDepth = 3;
+    gameState gs{};
+    gs.initialise(STARTING_FEN);
+    //Testing::perftTest(fenString, perftDepth);
+    Testing::advancedPerftDriver(gs, perftDepth);
     return 0;
 }
 
-void Testing::perftTest(string fenString, int perftDepth) {
+void Testing::perftTest(const string &fenString, int perftDepth) {
     gameState gs;
-    gs.initialise(fenString);
+    gs.initialise(STARTING_FEN);
     BB nodeCount;
     auto start = chrono::steady_clock::now();
     nodeCount = Perft(gs, perftDepth);

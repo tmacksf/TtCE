@@ -11,24 +11,16 @@ private:
     BB m_bitboard;
 
 public:
-
-    // constructors
     Bitboard(){
         this->m_bitboard = 0ULL;
     }
 
-    // getter method
     [[nodiscard]] BB inline getValue() const{
         return m_bitboard;
-        //return this->m_bitboard;
     }
 
-    /*BB constexpr getValue() {
-        return m_bitboard;
-    }*/
-
-
     // bitwise methods
+    // todo transfer into this file to make them inline
     int getBitAt(int index) const;
     void setBitAt(int index);
     void unSetBitAt(int index);
@@ -56,21 +48,15 @@ public:
     static BB knightMoves[64];
     static BB pawnMoves[2][64];
     static BB pawnAttacks[2][64];
-    //rook and bishop attack tables are initialized in the magics section because they are done magically
 
     // methods to initialize attack tables
     static void initAttackTables();
     static void initPawnAttacks();
     static void initPawnMoves();
     static void initKnightAttacks();
-
     static void initKingAttacks();
 
-    // need to add way to generate on the fly
-
-    // making it easier to do generation of moves by segmenting the generation of attack
     static BB rayAttack(Direction direction, int index, int depth);
-
 
     // Section for templates
     // TODO add other directions for other move types

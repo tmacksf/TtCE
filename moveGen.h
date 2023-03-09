@@ -163,7 +163,7 @@ public:
         BB pieceBitboard = gs.getPieceBitboard(pt, turn);
         BB enemyPieces = gs.enemyBoard();
         BB friendlyPieces = gs.friendlyBoard();
-        BB allPieces = gs.friendlyBoard() | gs.enemyBoard();
+        BB allPieces = gs.friendlyBoard() | gs.enemyBoard(); // slightly faster than using gs.allPieces();
         int piece = gameState::getPiece(pt, turn);
 
         if constexpr (Type == Captures) {
@@ -193,12 +193,15 @@ public:
         if constexpr (Type == All) {
             bool capture = false;
             while (pieceBitboard) {
-                int from = pop_lsb(pieceBitboard);
+                const int from = pop_lsb(pieceBitboard);
+
+                std::cout << "from: " << from << "\n";
 
                 BB attacks = attacksBitboard<pt>(from, allPieces) & ~friendlyPieces;
 
                 while (attacks) {
                     int to = pop_lsb(attacks);
+
                     if ((1ULL << to) & enemyPieces) capture = true;
                     //((1ULL << to) & enemyPieces) ? capture = true : capture = false;
                     moves.emplace_back(from, to, piece, false, false, capture, false, false);
@@ -210,9 +213,11 @@ public:
 
     template<PieceTypes pt>
     static BB attacksBitboard(int square, BB blockers) {
+        std::cout << "Square: " << square << "\n";
+        printBitString(Magics::getRookAttacks(square, blockers));
         static_assert(pt != PAWN && pt != KING, "Invalid piece type passed to attacks bitboard");
         switch (pt) {
-            case QUEEN: return (Magics::getRookAttacks(square, blockers) | Magics::getBishopAttacks(square, blockers));
+            case QUEEN: return Magics::getQueenAttacks(square, blockers);
             case ROOK: return Magics::getRookAttacks(square, blockers);
             case BISHOP: return Magics::getBishopAttacks(square, blockers);
             case KNIGHT: return Bitboard::knightMoves[square];

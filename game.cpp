@@ -3,36 +3,123 @@
 //
 
 #include "game.h"
+#include "defsEnums.h"
 
 using namespace std;
 
 void initializeMoveGenerationInformation() {
-    Bitboard::initAttackTables();
-    Magics::generateSlidingAttackTables();
+  Bitboard::initAttackTables();
+  Magics::generateSlidingAttackTables();
 }
 
-int Game(){
-    gameState gs{};
-    // need to do these two things before the game starts so need to make these a function and have it run at beginning
-    /*gs.initialise("r3k2r/p2pqNb1/bnp1pnp1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 2");
+int Game() {
+  //int status = gameLoop(STARTING_FEN, BLACK);
+  gameState gs{};
+  gs.initialise("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+  gs.printing();
+  vector<Move> moves;
+  //moveGen::pseudoLegalMoves(gs,moves);
+  moveGen::pieceMoves<WHITE, QUEEN, All>(gs, moves);
+  for (auto m : moves){
+      m.printMove();
+  }
+  cout << moves.size();
+}
 
-    //gs.initialise("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -");
+void parseUCIMove(std::string &move, int *moveLocation) {
+  int fromSquare;
+  int toSquare;
 
-    int total = 0;
-    vector<Move> mv;
-    moveGen::legalMoves(gs, mv);
+  fromSquare = charToFile[move[0]] + (8 * (int(move[1]) - '1'));
+  toSquare = charToFile[move[2]] + (8 * (int(move[3]) - '1'));
 
-    for (auto m :mv) m.printMove();
-    for (auto m : moves) {
-        vector<Move> moveVec;
-        //m.printMove();
-        gameState gsCopy = gs;
-        gsCopy.makeMove(m);
-        moveGen::legalMoves(gsCopy, moveVec);
-        gsCopy.printing();
-        for (auto mv: moveVec) mv.printMove();
-        total += moveVec.size();
-    }*/
+  // TODO add more clarification about promoted piece. If it is whites turn for
+  // example
+  if (move.length() == 5) {
+    switch (move[4]) {
+    case 'q':
+      moveLocation[2] = q;
+    case 'Q':
+      moveLocation[2] = Q;
+    case 'r':
+      moveLocation[2] = r;
+    case 'R':
+      moveLocation[2] = R;
+    case 'b':
+      moveLocation[2] = b;
+    case 'B':
+      moveLocation[2] = B;
+    case 'n':
+      moveLocation[2] = n;
+    case 'N':
+      moveLocation[2] = N;
+    }
+  }
+  moveLocation[0] = fromSquare;
+  moveLocation[1] = toSquare;
+}
 
-    return 0;
+Move isMoveLegal(const vector<Move> &moves, const int *moveLocation) {
+  for (int i = 0; i < moves.size(); i++) {
+    if (moves.at(i).fromSquare == moveLocation[0] &&
+        moves.at(i).toSquare == moveLocation[1] &&
+        moves.at(i).promotedPiece == moveLocation[2]) {
+      return moves.at(i);
+    }
+  }
+  return Move{-1};
+}
+
+void playerTurn(int *moveLocation) {
+  string move = "";
+
+  cin >> move;
+  parseUCIMove(move, moveLocation);
+  cout << moveLocation[0] << moveLocation[1] << moveLocation[2] << endl;
+}
+
+Move engineTurn(const gameState &gs) {
+  std::vector<Move> moveVec;
+
+  moveGen::legalMoves(gs, moveVec);
+  int moveCount = moveVec.size();
+  int move = rand() % moveCount;
+  return moveVec[move];
+}
+
+int gameLoop(const string &startFen, Color engineColor) {
+  Color playerColor = ~engineColor;
+  gameState gs{}; // current board state
+  gs.initialise(startFen);
+  bool hasWon = false;
+  while (!hasWon) {
+    // Print current game state
+    gs.printing();
+    bool validMove = false;
+    std::vector<Move> legalMoves;
+    moveGen::legalMoves(gs, legalMoves);
+    // loop to make sure move is legal
+
+    if (gs.getTurn() == engineColor) {
+      gs.makeMove(engineTurn(gs));
+    } else {
+      while (!validMove) {
+        int moveLocation[] = {0, 0, 0};
+        playerTurn(moveLocation);
+        Move m = isMoveLegal(legalMoves, moveLocation);
+        cout << m.fromSquare << m.toSquare << endl;
+        if (m.fromSquare != -1) {
+          validMove = true;
+          gs.makeMove(m);
+        } else {
+          cout << "Move was invalid. Please enter again.\n";
+          for (Move m : legalMoves) {
+            m.printMove();
+          }
+        }
+      }
+    }
+    hasWon = gs.isMoveCheckmate();
+  }
+  return 0;
 }
