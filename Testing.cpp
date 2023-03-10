@@ -6,19 +6,15 @@
 using namespace std;
 
 int Testing::AllTests() {
-    string fenString = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
-
-    int perftDepth = 3;
+    int perftDepth = 1;
     gameState gs{};
-    gs.initialise(STARTING_FEN);
-    //Testing::perftTest(fenString, perftDepth);
-    Testing::advancedPerftDriver(gs, perftDepth);
+    gs.initialise("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+    perftTest(gs, perftDepth);
+    //advancedPerftDriver(gs, perftDepth);
     return 0;
 }
 
-void Testing::perftTest(const string &fenString, int perftDepth) {
-    gameState gs;
-    gs.initialise(STARTING_FEN);
+void Testing::perftTest(const gameState &gs, int perftDepth) {
     BB nodeCount;
     auto start = chrono::steady_clock::now();
     nodeCount = Perft(gs, perftDepth);
@@ -29,7 +25,7 @@ void Testing::perftTest(const string &fenString, int perftDepth) {
     cout << nodeCount << " Time: " << chrono::duration <double, milli> (diff).count() << endl;
 }
 
-BB Testing::Perft(gameState &gs, int depth) {
+BB Testing::Perft(const gameState &gs, int depth) {
     std::vector<Move> moves;
     moveGen::legalMoves(gs, moves);
 
@@ -55,6 +51,7 @@ BB Testing::PerftAdvanced(const gameState &gs, int depth, int *extraInfo) {
             if (move.enPassantFlag) extraInfo[1] += 1;
             if (move.castleFlag) extraInfo[2] += 1;
             if (move.promotedPiece) extraInfo[3] += 1;
+            if (move.piece == BISHOP) extraInfo[4] += 1;
         }
         return moves.size();
     }
@@ -68,11 +65,12 @@ BB Testing::PerftAdvanced(const gameState &gs, int depth, int *extraInfo) {
 }
 
 BB Testing::advancedPerftDriver(gameState &gs, int depth) {
-    int extraInfo[] = {0, 0, 0, 0};
+    int extraInfo[] = {0, 0, 0, 0, 0};
     BB moveCount = 0;
     moveCount += PerftAdvanced(gs, depth, extraInfo);
 
-    cout << "Move count: " << moveCount << " Captures: " << extraInfo[0] << " E.P. " << extraInfo[1] << " Castles: " << extraInfo[2] << " Promotions: " << extraInfo[3] << endl;
+    cout << "Move count: " << moveCount << " Captures: " << extraInfo[0] << " E.P. " << extraInfo[1] << " Castles: "
+    << extraInfo[2] << " Promotions: " << extraInfo[3] << " Num bishop moves: " << extraInfo[4] <<endl;
 
     return moveCount;
 }

@@ -16,14 +16,18 @@ int Game() {
   //int status = gameLoop(STARTING_FEN, BLACK);
   gameState gs{};
   gs.initialise("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
-  gs.printing();
   vector<Move> moves;
-  //moveGen::pseudoLegalMoves(gs,moves);
-  moveGen::pieceMoves<WHITE, QUEEN, All>(gs, moves);
-  for (auto m : moves){
+  moveGen::legalMoves(gs,moves);
+  for (Move m: moves){
       m.printMove();
   }
-  cout << moves.size();
+  cout << moves.size() << "\n\n";
+
+  for (int i = 0; i < 64; i++) {
+
+  }
+
+  return 0;
 }
 
 void parseUCIMove(std::string &move, int *moveLocation) {

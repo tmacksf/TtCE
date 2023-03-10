@@ -7,7 +7,9 @@ using namespace std;
 
 int main(){
     initializeMoveGenerationInformation();
+
     //Testing::AllTests();
     Game();
+
     return 0;
 }

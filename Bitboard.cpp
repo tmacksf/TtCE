@@ -6,29 +6,29 @@
 
 int Bitboard::getBitAt(int index) const {
     //assert(index >= 0 and index < 64);
-    return (this->m_bitboard & (1ULL << index)) ? 1 : 0;
+    return (m_bitboard & (1ULL << index)) ? 1 : 0;
 }
 
 void Bitboard::setBitAt(int index) {
     //assert(index >= 0 and index < 64);
-    this->m_bitboard |= 1ULL << index;
+    m_bitboard |= 1ULL << index;
 }
 
 void Bitboard::unSetBitAt(int index) {
     //assert(index >= 0 and index < 64);
     // don't know if I need this checker to see if bit is positive. Might be redundant and slow it down too much
     if (getBitAt(index) == 1ULL) {
-        this->m_bitboard &= ~(1ULL << index);
+        m_bitboard &= ~(1ULL << index);
     }
 }
 
 void Bitboard::toggleBit(int index) {
     //assert(index >= 0 and index < 64);
-    this->m_bitboard ^= 1ULL << index;
+    m_bitboard ^= 1ULL << index;
 }
 
 int Bitboard::bitCount() const{
-    BB x = this->m_bitboard;
+    BB x = m_bitboard;
     x -= (x >> 1) & 0x5555555555555555; //put count of each 2 bits into those 2 bits
     x = (x & 0x3333333333333333) + ((x >> 2) & 0x3333333333333333); //put count of each 4 bits into those 4 bits
     x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0f;  //put count of each 8 bits into those 8 bits
@@ -36,7 +36,7 @@ int Bitboard::bitCount() const{
 }
 
 int Bitboard::getLeastSignificantBit() const {
-    return __builtin_ctzll(this->m_bitboard);
+    return __builtin_ctzll(m_bitboard);
 }
 
 void Bitboard::printBitboard() const {
@@ -147,7 +147,6 @@ BB Bitboard::rayAttack(Direction direction, int index, int depth) {
 
 void Bitboard::initKnightAttacks() {
     BB moves;
-    BB position;
 
     for (int rank = 0; rank < 8; rank ++) {
         for (int file = 0; file < 8; file ++) {

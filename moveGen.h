@@ -195,8 +195,6 @@ public:
             while (pieceBitboard) {
                 const int from = pop_lsb(pieceBitboard);
 
-                std::cout << "from: " << from << "\n";
-
                 BB attacks = attacksBitboard<pt>(from, allPieces) & ~friendlyPieces;
 
                 while (attacks) {
@@ -213,8 +211,6 @@ public:
 
     template<PieceTypes pt>
     static BB attacksBitboard(int square, BB blockers) {
-        std::cout << "Square: " << square << "\n";
-        printBitString(Magics::getRookAttacks(square, blockers));
         static_assert(pt != PAWN && pt != KING, "Invalid piece type passed to attacks bitboard");
         switch (pt) {
             case QUEEN: return Magics::getQueenAttacks(square, blockers);

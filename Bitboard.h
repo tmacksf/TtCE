@@ -12,7 +12,7 @@ private:
 
 public:
     Bitboard(){
-        this->m_bitboard = 0ULL;
+        m_bitboard = 0ULL;
     }
 
     [[nodiscard]] BB inline getValue() const{

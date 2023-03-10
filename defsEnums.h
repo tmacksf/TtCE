@@ -287,14 +287,16 @@ constexpr int mirrorScores[] = {
     a8, b8, c8, d8, e8, f8, g8, h8,
 };
 
-#define GETBIT(A, B) ((A >> (B&7)) &1)
+#define get_bit(b, i) ((b) & (1ULL << i))
 static void printBitString(BB bitboard) {
     std::cout << "  a b c d e f g h" << std::endl;
     for (int file = 0; file < 8; file ++) {
         std::cout << 8-file;
         std::cout << " ";
         for (int rank = 0; rank < 8; rank ++) {
-            std::cout << GETBIT(bitboard, 63 - file * 8 - rank);
+            int square = 63 - (8*file + rank);
+            if (get_bit(bitboard, square)) std::cout << 1;
+            else std::cout << 0;
             std::cout << ' ';
         }
         std::cout << std::endl;

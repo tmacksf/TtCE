@@ -30,52 +30,35 @@ void Magics::initRookMasks() {
   for (int i = 0; i < 64; i++) {
     attacks = 0Ull;
 
-    int r, f;
+    int rank, file;
 
-    int tr = i / 8;
-    int tf = i % 8;
+    int startRank = i / 8;
+    int startFile = i % 8;
 
-    for (r = tr + 1; r <= 6; r++)
-      attacks |= (1ULL << (r * 8 + tf));
-    for (r = tr - 1; r >= 1; r--)
-      attacks |= (1ULL << (r * 8 + tf));
-    for (f = tf + 1; f <= 6; f++)
-      attacks |= (1ULL << (tr * 8 + f));
-    for (f = tf - 1; f >= 1; f--)
-      attacks |= (1ULL << (tr * 8 + f));
+    for (rank = startRank + 1; rank <= 6; rank++) attacks |= (1ULL << (rank * 8 + startFile));
+    for (rank = startRank - 1; rank >= 1; rank--) attacks |= (1ULL << (rank * 8 + startFile));
+    for (file = startFile + 1; file <= 6; file++) attacks |= (1ULL << (startRank * 8 + file));
+    for (file = startFile - 1; file >= 1; file--) attacks |= (1ULL << (startFile * 8 + file));
 
     rookMask[i] = attacks;
   }
 }
 
 void Magics::initBishopMasks() {
-  BB moves;
-  BB position;
-  for (int rank = 0; rank < 8; rank++) {
-    for (int file = 0; file < 8; file++) {
-      moves = 0ULL;
-      int index = rank * 8 + file;
-      position = 1ULL << index;
+    BB attacks;
+    for (int i = 0; i < 64; i++){
+        attacks = 0ULL;
 
-      if (rank >= file) {
-        // shifting the predefined diagonal which is the bottom right to top
-        // left diagonal to get north-west moves
-        moves |= rightLeft << 8 * (rank - file);
-      } else {
-        moves |= rightLeft >> 8 * (file - rank);
-      }
+        int rank, file;
 
-      int extra = 7 - rank;
-      if (extra >= file) {
-        moves |= leftRight >> 8 * (extra - file);
-      } else {
-        moves |= leftRight << 8 * (file - extra);
-      }
-      moves ^= position;
-      moves &= outerRing;
-      bishopMask[index] = moves;
+        int startRank = i/8;
+        int startFile = i % 8;
+
+        for (rank = startRank + 1, file = startFile + 1; rank <= 6 && file <= 6; rank++, file++) attacks |= (1ULL << (rank*8+file));
+        for (rank = startRank + 1, file = startFile - 1; rank <= 6 && file >= 1; rank++, file--) attacks |= (1ULL << (rank*8+file));
+        for (rank = startRank - 1, file = startFile + 1; rank >= 1 && file <= 6; rank--, file++) attacks |= (1ULL << (rank*8+file));
+        for (rank = startRank - 1, file = startFile - 1; rank >= 1 && file >= 1; rank--, file--) attacks |= (1ULL << (rank*8+file));
     }
-  }
 }
 
 BB Magics::randomBB() {
@@ -161,8 +144,6 @@ BB Magics::bishopAttacksOnTheFly(int square, BB blockers) {
 }
 
 void Magics::generateMagicNumbers() {
-  initBishopMasks();
-  initRookMasks();
   for (int i = 0; i < 64; i++) {
     rookMagics[i] = findRookMagic(i, rookBitCounts[i]);
     bishopMagics[i] = findBishopMagic(i, bishopBitCounts[i]);
@@ -253,11 +234,8 @@ void Magics::initRookAttacks() {
 
     for (int i = 0; i < occupancyIndices; i++) {
       BB occ = setOccupancy(i, mask);
-      rookAttacks[square][(occ * preCalcRookMagics[square]) >>
-                          (64 - rookBitCounts[square])] =
-          rookAttacksOnTheFly(square, occ);
-      printBitString(rookAttacks[square][(occ * preCalcRookMagics[square]) >>
-                                         (64 - rookBitCounts[square])]);
+      int magicIndex = (occ * preCalcRookMagics[square]) >> (64-rookBitCounts[square]);
+      rookAttacks[square][magicIndex]= rookAttacksOnTheFly(square, occ);
     }
   }
 }
@@ -269,8 +247,8 @@ void Magics::initBishopAttacks() {
 
     for (int i = 0; i < occupancyIndices; i++) {
       BB occ = setOccupancy(i, mask);
-      bishopAttacks[square][(occ * preCalcBishopMagics[square]) >>
-                            (64 - bishopBitCounts[square])] =
+      int magicIndex = (occ * preCalcBishopMagics[square]) >> (64-bishopBitCounts[square]);
+      bishopAttacks[square][magicIndex] =
           bishopAttacksOnTheFly(square, occ);
     }
   }
