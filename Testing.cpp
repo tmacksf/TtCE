@@ -6,9 +6,10 @@
 using namespace std;
 
 int Testing::AllTests() {
-    int perftDepth = 1;
+    int perftDepth = 6;
     gameState gs{};
-    gs.initialise("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+    //gs.initialise("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+    gs.initialise(STARTING_FEN);
     perftTest(gs, perftDepth);
     //advancedPerftDriver(gs, perftDepth);
     return 0;

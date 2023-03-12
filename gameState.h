@@ -22,6 +22,10 @@ private:
 public:
   gameState();
   // getter methods
+  inline Bitboard& getBitboardMut(int index) {
+      return m_bitboards[index];
+  }
+
   [[nodiscard]] inline Bitboard getBitboard(int index) const {
     return m_bitboards[index];
   }

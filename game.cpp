@@ -16,16 +16,15 @@ int Game() {
   //int status = gameLoop(STARTING_FEN, BLACK);
   gameState gs{};
   gs.initialise("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+  //gs.initialise(STARTING_FEN);
+  gs.printing();
   vector<Move> moves;
   moveGen::legalMoves(gs,moves);
-  for (Move m: moves){
+  /*for (Move m: moves){
       m.printMove();
-  }
+  }*/
+
   cout << moves.size() << "\n\n";
-
-  for (int i = 0; i < 64; i++) {
-
-  }
 
   return 0;
 }
@@ -75,7 +74,7 @@ Move isMoveLegal(const vector<Move> &moves, const int *moveLocation) {
 }
 
 void playerTurn(int *moveLocation) {
-  string move = "";
+  string move;
 
   cin >> move;
   parseUCIMove(move, moveLocation);

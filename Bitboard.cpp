@@ -5,25 +5,22 @@
 #include "Bitboard.h"
 
 int Bitboard::getBitAt(int index) const {
-    //assert(index >= 0 and index < 64);
+    assert(index >= 0 and index < 64);
     return (m_bitboard & (1ULL << index)) ? 1 : 0;
 }
 
 void Bitboard::setBitAt(int index) {
-    //assert(index >= 0 and index < 64);
+    assert(index >= 0 and index < 64);
     m_bitboard |= 1ULL << index;
 }
 
 void Bitboard::unSetBitAt(int index) {
-    //assert(index >= 0 and index < 64);
-    // don't know if I need this checker to see if bit is positive. Might be redundant and slow it down too much
-    if (getBitAt(index) == 1ULL) {
-        m_bitboard &= ~(1ULL << index);
-    }
+    assert(index >= 0 and index < 64);
+    m_bitboard &= ~(1ULL << index);
 }
 
 void Bitboard::toggleBit(int index) {
-    //assert(index >= 0 and index < 64);
+    assert(index >= 0 and index < 64);
     m_bitboard ^= 1ULL << index;
 }
 

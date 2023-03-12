@@ -24,8 +24,8 @@ public:
     int getBitAt(int index) const;
     void setBitAt(int index);
     void unSetBitAt(int index);
-    static BB inline unSetBitAt(BB bBoard, int index) {
-        return (bBoard &= ~(1ULL << index));
+    static void inline unSetBitAt(BB &bBoard, int index) {
+        bBoard &= ~(1ULL << index);
     }
     void toggleBit(int index);
     [[nodiscard]] int getLeastSignificantBit() const;

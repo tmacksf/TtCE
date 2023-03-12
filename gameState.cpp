@@ -256,7 +256,7 @@ bool gameState::isMoveCheckmate() {
 
   // need to check the area around the king
 
-  BB freeSquaresAroundKing = Bitboard::kingMoves[kingSquare] & allPieces();
+  BB freeSquaresAroundKing = Bitboard::kingMoves[kingSquare] & ~allPieces();
   BB allPiecesButKing = allPieces() ^ Bitboard::kingMoves[kingSquare];
   while (freeSquaresAroundKing) {
     int location = pop_lsb(freeSquaresAroundKing);
