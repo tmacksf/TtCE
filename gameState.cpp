@@ -80,35 +80,35 @@ void gameState::initialise(std::string fen) {
   // TODO half move counter and full move counter
 }
 
-void gameState::printing() {
+void gameState::printing() const {
   std::string outString;
   int counter = 0;
   int square = 64;
-  for (int row = 0; row < 8; row ++){
-      outString = std::to_string(8-row);
-      outString += "      ";
-      for (int col = 0; col < 8; col++) {
-          square--;
-          int flag = 0;
-          for (int j = 0; j < 12; j++) {
-              if (m_bitboards[j].getBitAt(square) == 1) {
-                  //outString.append(1, pieceToChar[j]);
-                  outString += pieceToSymbolDark[j];
-                  outString += "  ";
-                  flag = 1;
-              }
-          }
-          if (!flag) {
-              outString.append(1, '-');
-              outString += "  ";
-          }
-          counter += 1;
-          if (counter == 8) {
-              std::cout << outString << std::endl;
-              counter = 0;
-              outString = "";
-          }
+  for (int row = 0; row < 8; row++) {
+    outString = std::to_string(8 - row);
+    outString += "      ";
+    for (int col = 0; col < 8; col++) {
+      square--;
+      int flag = 0;
+      for (int j = 0; j < 12; j++) {
+        if (m_bitboards[j].getBitAt(square) == 1) {
+          // outString.append(1, pieceToChar[j]);
+          outString += pieceToSymbolDark[j];
+          outString += "  ";
+          flag = 1;
+        }
       }
+      if (!flag) {
+        outString.append(1, '-');
+        outString += "  ";
+      }
+      counter += 1;
+      if (counter == 8) {
+        std::cout << outString << std::endl;
+        counter = 0;
+        outString = "";
+      }
+    }
   }
 
   std::cout << "\n       A  B  C  D  E  F  G  H" << std::endl;
@@ -245,24 +245,4 @@ void gameState::stateToFen() {
   output += " 0 1";
 
   std::cout << output << std::endl;
-}
-
-// function to determine if a move causes a checkmate
-bool gameState::isMoveCheckmate() {
-  int kingSquare = m_bitboards[KING + 6 * m_turn].getLeastSignificantBit();
-  bool check = isKingInCheck(m_attacking);
-  if (!check)
-    return false;
-
-  // need to check the area around the king
-
-  BB freeSquaresAroundKing = Bitboard::kingMoves[kingSquare] & ~allPieces();
-  BB allPiecesButKing = allPieces() ^ Bitboard::kingMoves[kingSquare];
-  while (freeSquaresAroundKing) {
-    int location = pop_lsb(freeSquaresAroundKing);
-    if (!attacked(location, m_attacking, allPiecesButKing))
-      return false;
-  }
-
-  return true;
-}
+};

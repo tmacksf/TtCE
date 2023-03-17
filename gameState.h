@@ -22,9 +22,7 @@ private:
 public:
   gameState();
   // getter methods
-  inline Bitboard& getBitboardMut(int index) {
-      return m_bitboards[index];
-  }
+  inline Bitboard &getBitboardMut(int index) { return m_bitboards[index]; }
 
   [[nodiscard]] inline Bitboard getBitboard(int index) const {
     return m_bitboards[index];
@@ -37,7 +35,7 @@ public:
   [[nodiscard]] inline int getEPSquare() const { return m_enPassantSquare; }
 
   // member functions
-  void printing();
+  void printing() const;
   void stateToFen();
   void initialise(std::string fen);
   bool isMoveCheckmate();

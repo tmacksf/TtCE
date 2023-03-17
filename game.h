@@ -6,8 +6,11 @@
 #define CHESS_CPP_GAME_H
 
 #include "Evaluation.h"
+#include "Search.h"
+#include "defsEnums.h"
 #include "moveGen.h"
 #include <random>
+#include <vector>
 
 // Game will be the main function for interacting with
 int Game();

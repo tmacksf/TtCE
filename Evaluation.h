@@ -9,16 +9,19 @@
 
 class Evaluation {
 public:
-  static int evaluate(const gameState &gs);
+  static inline int evaluate(const gameState &gs) {
+    int total = 0;
+    total += pieceScores(gs);
+    total += positionScores(gs);
+
+    return (gs.getTurn() == WHITE) ? total : -total;
+  }
 
   static inline int pieceScores(const gameState &gs) {
     int total = 0;
     for (int i = 0; i < pieceCount; i++) {
-      BB temp = gs.getBitboard(i).getValue();
-      while (temp) {
-        total += pieceValues[i];
-        pop_lsb(temp);
-      }
+      BB temp = gs.getBitboard(i).bitCount();
+      total += temp * pieceValues[i];
     }
     return total;
   }
@@ -29,15 +32,16 @@ public:
     if (turn) {
       while (pieceBitboard) {
         int index = pop_lsb(pieceBitboard);
-        score += table[mirrorScores[index]];
+        // TODO testing on this to make sure its okay
+        score += table[63 - mirrorScores[63 - index]];
       }
     } else {
       while (pieceBitboard) {
         int index = pop_lsb(pieceBitboard);
-        score += table[index];
+        score += table[63 - index];
       }
     }
-    return 0;
+    return score;
   }
 
   static int positionScores(const gameState &gs);

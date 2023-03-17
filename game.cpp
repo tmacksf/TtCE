@@ -3,6 +3,7 @@
 //
 
 #include "game.h"
+#include "Evaluation.h"
 #include "defsEnums.h"
 
 using namespace std;
@@ -13,20 +14,9 @@ void initializeMoveGenerationInformation() {
 }
 
 int Game() {
-  //int status = gameLoop(STARTING_FEN, BLACK);
-  gameState gs{};
-  gs.initialise("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
-  //gs.initialise(STARTING_FEN);
-  gs.printing();
-  vector<Move> moves;
-  moveGen::legalMoves(gs,moves);
-  /*for (Move m: moves){
-      m.printMove();
-  }*/
-
-  cout << moves.size() << "\n\n";
-
-  return 0;
+  int status = 0;
+  status = gameLoop(STARTING_FEN, BLACK);
+  return status;
 }
 
 void parseUCIMove(std::string &move, int *moveLocation) {
@@ -82,12 +72,11 @@ void playerTurn(int *moveLocation) {
 }
 
 Move engineTurn(const gameState &gs) {
-  std::vector<Move> moveVec;
 
-  moveGen::legalMoves(gs, moveVec);
-  int moveCount = moveVec.size();
-  int move = rand() % moveCount;
-  return moveVec[move];
+  Search negamaxSearch{};
+  negamaxSearch.findBestMove(gs, 6);
+
+  return negamaxSearch.getBestMove();
 }
 
 int gameLoop(const string &startFen, Color engineColor) {
@@ -98,14 +87,14 @@ int gameLoop(const string &startFen, Color engineColor) {
   while (!hasWon) {
     // Print current game state
     gs.printing();
-    bool validMove = false;
-    std::vector<Move> legalMoves;
-    moveGen::legalMoves(gs, legalMoves);
     // loop to make sure move is legal
 
     if (gs.getTurn() == engineColor) {
       gs.makeMove(engineTurn(gs));
     } else {
+      std::vector<Move> legalMoves;
+      moveGen::legalMoves(gs, legalMoves);
+      bool validMove = false;
       while (!validMove) {
         int moveLocation[] = {0, 0, 0};
         playerTurn(moveLocation);
@@ -122,7 +111,22 @@ int gameLoop(const string &startFen, Color engineColor) {
         }
       }
     }
-    hasWon = gs.isMoveCheckmate();
+
+    vector<Move> moves;
+    moveGen::legalMoves(gs, moves);
+    if (gs.isKingInCheck(gs.getAttacking()) && !moves.size()) {
+      hasWon = true;
+      gs.printing();
+      // need to reverse these as it checks after the move is made
+      if (gs.getTurn())
+        cout << "White wins!";
+      else
+        cout << "Black wins!";
+    } else if (!moves.size()) {
+      hasWon = true;
+      gs.printing();
+      cout << "Tie" << endl;
+    }
   }
   return 0;
 }
