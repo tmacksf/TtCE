@@ -10,6 +10,5 @@ int main() {
 
   // Testing::AllTests();
   Game();
-
   return 0;
 }

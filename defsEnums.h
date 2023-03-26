@@ -171,8 +171,8 @@ enum PieceTypes : int { KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN };
 enum Pieces : int { K, Q, R, B, N, P, k, q, r, b, n, p };
 
 enum MoveType : int {
-  All = 0,
-  Quiet = 1,
+  All = 1,
+  Quiet,
   Captures,
   Evasions,
   PseudoLegal,

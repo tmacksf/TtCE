@@ -15,7 +15,27 @@ void initializeMoveGenerationInformation() {
 
 int Game() {
   int status = 0;
-  status = gameLoop(STARTING_FEN, BLACK);
+
+  /*
+  int turn;
+  cout << "Select turn (0 for white and 1 for black): ";
+  cin >> turn;
+
+  if (turn)
+    status = gameLoop(STARTING_FEN, BLACK);
+  else
+    status = gameLoop(STARTING_FEN, WHITE);
+  */
+
+  gameState gs;
+  gs.initialise(
+      "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R wKQkq - ");
+  Search s;
+  s.findBestMove(gs, 1);
+  s.getBestMove().printMove();
+  cout << "Node count: " << s.getNodes() << " Qnode count: " << s.getQNodes();
+  // cout << s.quiescence(gs, -50000, 50000) << " Qnodes: " << s.getQNodes();
+
   return status;
 }
 

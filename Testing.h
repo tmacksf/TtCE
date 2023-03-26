@@ -9,13 +9,12 @@
 
 class Testing {
 public:
-    static int AllTests();
-    static BB Perft(const gameState &gs, int depth);
-    static void perftTest(const gameState &gs, int perftDepth);
-    static BB PerftAdvanced(const gameState &gs, int depth, int *extraInfo);
+  static int AllTests();
+  static BB Perft(const gameState &gs, int depth);
+  static void perftTest(const gameState &gs, int perftDepth);
+  static BB PerftAdvanced(const gameState &gs, int depth, int *extraInfo);
 
-    static BB advancedPerftDriver(gameState &gs, int depth);
+  static BB advancedPerftDriver(gameState &gs, int depth);
 };
 
-
-#endif //CHESS_CPP_TESTING_H
+#endif // CHESS_CPP_TESTING_H
