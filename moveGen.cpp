@@ -5,7 +5,7 @@
 #include "moveGen.h"
 
 // TODO optimize a lot (There is a ton to do here but this is an easy start)
-void moveGen::legalMoves(const gameState &gs, std::vector<Move> &legalMoves) {
+/*void moveGen::legalMoves(const gameState &gs, std::vector<Move> &legalMoves) {
   std::vector<Move> pseudoLegalMoveVector;
   pseudoLegalMoveVector.reserve(16);
   legalMoves.reserve(pseudoLegalMoveVector.size());
@@ -48,6 +48,7 @@ void moveGen::pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves) {
   // kingMoves(gs, moves);
 }
 
+
 void moveGen::kingMoves(const gameState &gs, std::vector<Move> &moves) {
   Color turn = gs.getTurn();
   Color attacking = ~turn;
@@ -78,4 +79,4 @@ void moveGen::kingMoves(const gameState &gs, std::vector<Move> &moves) {
     else
       kingCastling<WHITE>(kingIndex, gs, moves);
   }
-}
+}*/

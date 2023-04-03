@@ -11,12 +11,8 @@
 class moveGen {
 public:
   moveGen() = default;
-  static void legalMoves(const gameState &gs, std::vector<Move> &moves);
-  static void pseudoLegalMoves(const gameState &gs, std::vector<Move> &moves);
 
-  static void kingMoves(const gameState &gs, std::vector<Move> &moves);
-
-  // Adds the squares the king can castle on to the
+  // Handles castling for the kingMoves
   template <Color turn>
   static void kingCastling(const int kingIndex, const gameState &gs,
                            std::vector<Move> &moves) {
@@ -69,6 +65,18 @@ public:
     }
   }
 
+  static void inline allPawnPromotions(int from, int to, int piece, int turn,
+                                       bool capture, std::vector<Move> &moves) {
+    moves.emplace_back(from, to, piece, false, false, capture, false,
+                       QUEEN + 6 * turn);
+    moves.emplace_back(from, to, piece, false, false, capture, false,
+                       ROOK + 6 * turn);
+    moves.emplace_back(from, to, piece, false, false, capture, false,
+                       BISHOP + 6 * turn);
+    moves.emplace_back(from, to, piece, false, false, capture, false,
+                       KNIGHT + 6 * turn);
+  }
+
   // TODO take the if (pawnPromotions and Type) out into another function
   // Section for templates
   template <Color turn, MoveType Type>
@@ -94,14 +102,8 @@ public:
       while (promotions) {
         // handling promotions
         int to = pop_lsb(promotions);
-        moves.emplace_back(to - direction, to, piece, false, false, false,
-                           false, QUEEN + 6 * turn);
-        moves.emplace_back(to - direction, to, piece, false, false, false,
-                           false, ROOK + 6 * turn);
-        moves.emplace_back(to - direction, to, piece, false, false, false,
-                           false, BISHOP + 6 * turn);
-        moves.emplace_back(to - direction, to, piece, false, false, false,
-                           false, KNIGHT + 6 * turn);
+        int from = to - direction;
+        allPawnPromotions(from, to, piece, turn, false, moves);
       }
     }
     if (pawnPromotions && Type == Captures) {
@@ -109,25 +111,38 @@ public:
       BB leftCapture = Bitboard::shift<upLeft>(pawnPromotions) & enemyBoard;
       while (rightCapture) {
         int to = pop_lsb(rightCapture);
-        moves.emplace_back(to - upRight, to, piece, false, false, true, false,
-                           QUEEN + 6 * turn);
-        moves.emplace_back(to - upRight, to, piece, false, false, true, false,
-                           ROOK + 6 * turn);
-        moves.emplace_back(to - upRight, to, piece, false, false, true, false,
-                           BISHOP + 6 * turn);
-        moves.emplace_back(to - upRight, to, piece, false, false, true, false,
-                           KNIGHT + 6 * turn);
+        int from = to - upRight;
+        allPawnPromotions(from, to, piece, turn, true, moves);
       }
       while (leftCapture) {
         int to = pop_lsb(leftCapture);
-        moves.emplace_back(to - upLeft, to, piece, false, false, true, false,
-                           QUEEN + 6 * turn);
-        moves.emplace_back(to - upLeft, to, piece, false, false, true, false,
-                           ROOK + 6 * turn);
-        moves.emplace_back(to - upLeft, to, piece, false, false, true, false,
-                           BISHOP + 6 * turn);
-        moves.emplace_back(to - upLeft, to, piece, false, false, true, false,
-                           KNIGHT + 6 * turn);
+        int from = to - upLeft;
+        allPawnPromotions(from, to, piece, turn, true, moves);
+      }
+    }
+    if (pawnPromotions && Type == Evasions) {
+      BB rightCapture =
+          Bitboard::shift<upRight>(pawnPromotions) & gs.getAttackingPieces();
+      BB leftCapture =
+          Bitboard::shift<upLeft>(pawnPromotions) & gs.getAttackingPieces();
+      BB promotions =
+          Bitboard::shift<direction>(pawnPromotions) & gs.getAttackingPieces();
+
+      int from;
+      while (rightCapture) {
+        int to = pop_lsb(rightCapture);
+        from = to - upRight;
+        allPawnPromotions(from, to, piece, turn, true, moves);
+      }
+      while (leftCapture) {
+        int to = pop_lsb(leftCapture);
+        from = to - upLeft;
+        allPawnPromotions(from, to, piece, turn, true, moves);
+      }
+      while (promotions) {
+        int to = pop_lsb(promotions);
+        from = to - direction;
+        allPawnPromotions(from, to, piece, turn, false, moves);
       }
     }
 
@@ -157,7 +172,6 @@ public:
       }
     }
 
-    // Quiets
     if constexpr (Type == Quiet) {
       BB firstPush = Bitboard::shift<direction>(otherPawns) & emptySquares;
       BB secondPush =
@@ -176,7 +190,49 @@ public:
       }
     }
 
-    // All moves
+    if constexpr (Type == Evasions) {
+      BB firstPush = Bitboard::shift<direction>(otherPawns) & emptySquares;
+      BB secondPush = Bitboard::shift<direction>(firstPush) &
+                      (gs.getAttackingPieces() & emptySquares);
+      firstPush &= gs.getAttackingPieces();
+      BB rightCapture = Bitboard::shift<upRight>(otherPawns) &
+                        (enemyBoard & gs.getAttackingPieces());
+      BB leftCapture = Bitboard::shift<upLeft>(otherPawns) &
+                       (enemyBoard & gs.getAttackingPieces());
+
+      if (gs.getEPSquare() != -1) {
+        if ((1ULL << gs.getEPSquare()) & gs.getAttackingPieces()) {
+          BB epPawns = Bitboard::pawnAttacks[~turn][gs.getEPSquare()] & pawns;
+          epPawns &= gs.getAttackingPieces();
+          while (epPawns) {
+            moves.emplace_back(pop_lsb(epPawns), gs.getEPSquare(), piece, false,
+                               true, true, false, false);
+          }
+        }
+      }
+
+      while (firstPush) {
+        int to = pop_lsb(firstPush);
+        moves.emplace_back(to - direction, to, piece, false, false, false,
+                           false, false);
+      }
+      while (secondPush) {
+        int to = pop_lsb(secondPush);
+        moves.emplace_back(to - direction * 2, to, piece, false, false, false,
+                           true, false);
+      }
+      while (rightCapture) {
+        int to = pop_lsb(rightCapture);
+        moves.emplace_back(to - upRight, to, piece, false, false, true, false,
+                           false);
+      }
+      while (leftCapture) {
+        int to = pop_lsb(leftCapture);
+        moves.emplace_back(to - upLeft, to, piece, false, false, true, false,
+                           false);
+      }
+    }
+
     if constexpr (Type == All) {
       pawnMoves<turn, Captures>(gs, moves);
       pawnMoves<turn, Quiet>(gs, moves);
@@ -219,6 +275,23 @@ public:
       }
     }
 
+    if constexpr (Type == Evasions) {
+      bool capture = false;
+      while (pieceBitboard) {
+        int from = pop_lsb(pieceBitboard);
+        BB pieceMoves =
+            attacksBitboard<pt>(from, allPieces) & gs.getAttackingPieces();
+        while (pieceMoves) {
+          int to = pop_lsb(pieceMoves);
+          if ((1ULL << to) & enemyPieces)
+            capture = true;
+          moves.emplace_back(from, to, piece, false, false, capture, false,
+                             false);
+          capture = false;
+        }
+      }
+    }
+
     if constexpr (Type == All) {
       bool capture = false;
       while (pieceBitboard) {
@@ -240,9 +313,8 @@ public:
     }
   }
 
-  // TODO Figure out why this doesn't work
   template <Color Turn, MoveType Type>
-  static void kingMovesTemplate(const gameState &gs, std::vector<Move> &moves) {
+  static void kingMoves(const gameState &gs, std::vector<Move> &moves) {
     BB kingBoard = gs.getPieceBitboard(KING, Turn);
     int kingPosition = Bitboard::getLeastSignificantBit(kingBoard);
     BB enemyBoard = gs.enemyBoard();
@@ -271,9 +343,15 @@ public:
         kingCastling<Turn>(kingPosition, gs, moves);
     }
 
+    if constexpr (Type == Evasions) {
+      // could (Should) add some more to this like not moving into check
+      kingMoves<Turn, Captures>(gs, moves);
+      kingMoves<Turn, Quiet>(gs, moves);
+    }
+
     if constexpr (Type == All) {
-      kingMovesTemplate<Turn, Captures>(gs, moves);
-      kingMovesTemplate<Turn, Quiet>(gs, moves);
+      kingMoves<Turn, Captures>(gs, moves);
+      kingMoves<Turn, Quiet>(gs, moves);
     }
   }
 
@@ -302,40 +380,39 @@ public:
         pieceMoves<BISHOP, Captures>(gs, moves);
         pieceMoves<ROOK, Captures>(gs, moves);
         pieceMoves<QUEEN, Captures>(gs, moves);
-        kingMovesTemplate<BLACK, Captures>(gs, moves);
+        kingMoves<BLACK, Captures>(gs, moves);
 
         pawnMoves<BLACK, Quiet>(gs, moves);
         pieceMoves<KNIGHT, Quiet>(gs, moves);
         pieceMoves<BISHOP, Quiet>(gs, moves);
         pieceMoves<ROOK, Quiet>(gs, moves);
         pieceMoves<QUEEN, Quiet>(gs, moves);
-        kingMovesTemplate<BLACK, Quiet>(gs, moves);
+        kingMoves<BLACK, Quiet>(gs, moves);
       } else {
         pawnMoves<WHITE, Captures>(gs, moves);
         pieceMoves<KNIGHT, Captures>(gs, moves);
         pieceMoves<BISHOP, Captures>(gs, moves);
         pieceMoves<ROOK, Captures>(gs, moves);
         pieceMoves<QUEEN, Captures>(gs, moves);
-        kingMovesTemplate<WHITE, Captures>(gs, moves);
+        kingMoves<WHITE, Captures>(gs, moves);
 
         pawnMoves<WHITE, Quiet>(gs, moves);
         pieceMoves<KNIGHT, Quiet>(gs, moves);
         pieceMoves<BISHOP, Quiet>(gs, moves);
         pieceMoves<ROOK, Quiet>(gs, moves);
         pieceMoves<QUEEN, Quiet>(gs, moves);
-        kingMovesTemplate<WHITE, Quiet>(gs, moves);
+        kingMoves<WHITE, Quiet>(gs, moves);
       }
     }
 
     if constexpr (Type != All) {
       if (gs.getTurn()) {
-        kingMovesTemplate<BLACK, Type>(gs, moves);
         pawnMoves<BLACK, Type>(gs, moves);
+        kingMoves<BLACK, Type>(gs, moves);
       } else {
-        kingMovesTemplate<WHITE, Type>(gs, moves);
         pawnMoves<WHITE, Type>(gs, moves);
+        kingMoves<WHITE, Type>(gs, moves);
       }
-      // kingMoves(gs, moves);
       pieceMoves<QUEEN, Type>(gs, moves);
       pieceMoves<ROOK, Type>(gs, moves);
       pieceMoves<BISHOP, Type>(gs, moves);
@@ -344,18 +421,16 @@ public:
   }
 
   template <MoveType Type>
-  static void legalMoves(const gameState &gs, std::vector<Move> &moves) {
+  static void legalMoves(gameState &gs, std::vector<Move> &moves) {
     int isKingInCheck = gs.isKingInCheck(gs.getAttacking());
 
     std::vector<Move> pseudoLegalMoveVector;
 
     if (isKingInCheck == 2) {
       if (gs.getTurn())
-        kingMovesTemplate<BLACK, Type>(gs, pseudoLegalMoveVector);
-      // kingMoves(gs, pseudoLegalMoveVector);
+        kingMoves<BLACK, Type>(gs, pseudoLegalMoveVector);
       else
-        kingMovesTemplate<WHITE, Type>(gs, pseudoLegalMoveVector);
-      // kingMoves(gs, pseudoLegalMoveVector);
+        kingMoves<WHITE, Type>(gs, pseudoLegalMoveVector);
       for (Move move : pseudoLegalMoveVector) {
         gameState gsCopy = gs;
         gsCopy.makeMove(move);
@@ -363,15 +438,39 @@ public:
           moves.push_back(move);
       }
     } else if (isKingInCheck == 1) {
+      // EVASIONS IS NOT WORKING ATM
+      /*gs.findAttackingLocation(); // finds the attackers
+      if constexpr (Type == All) {
+        pseudoLegalMoves<Evasions>(gs, pseudoLegalMoveVector);
+        moves.reserve(pseudoLegalMoveVector.size());
+        for (Move move : pseudoLegalMoveVector) {
+          gameState gsCopy = gs;
+          gsCopy.makeMove(move);
+          if (!gsCopy.isKingInCheck(gs.getAttacking()))
+            moves.push_back(move);
+        }
+      }
+
+      if constexpr (Type != All) {
+        pseudoLegalMoves<Type>(gs, pseudoLegalMoveVector);
+        moves.reserve(pseudoLegalMoveVector.size());
+        for (Move move : pseudoLegalMoveVector) {
+          gameState gsCopy = gs;
+          // gsCopy.findAttackingLine
+          gsCopy.makeMove(move);
+          if (!gsCopy.isKingInCheck(gs.getAttacking()))
+            moves.push_back(move);
+        }
+      }*/
       pseudoLegalMoves<Type>(gs, pseudoLegalMoveVector);
       moves.reserve(pseudoLegalMoveVector.size());
       for (Move move : pseudoLegalMoveVector) {
         gameState gsCopy = gs;
-        // gsCopy.findAttackingLine
         gsCopy.makeMove(move);
         if (!gsCopy.isKingInCheck(gs.getAttacking()))
           moves.push_back(move);
       }
+
     } else {
       pseudoLegalMoves<Type>(gs, pseudoLegalMoveVector);
       moves.reserve(pseudoLegalMoveVector.size());
@@ -382,6 +481,28 @@ public:
           moves.push_back(move);
       }
     }
+  }
+
+  static void mg2(const gameState &gs, std::vector<Move> &moves) {
+    std::vector<Move> pseudoLegalMoveVector;
+    pseudoLegalMoves<All>(gs, pseudoLegalMoveVector);
+    moves.reserve(pseudoLegalMoveVector.size());
+    for (Move move : pseudoLegalMoveVector) {
+      gameState gsCopy = gs;
+      gsCopy.makeMove(move);
+      if (!gsCopy.isKingInCheck(gs.getAttacking()))
+        moves.push_back(move);
+    }
+  }
+
+  static inline void sortMoves(const gameState &gs, std::vector<Move> &moves) {
+    for (Move &m : moves) {
+      m.scoreMove(gs.getEnemyPieceAt(m.m_toSquare), gs.getPly());
+    }
+
+    sort(moves.begin(), moves.end(), [](const Move &lhs, const Move &rhs) {
+      return lhs.m_moveScore > rhs.m_moveScore;
+    });
   }
 };
 #endif // CHESS_CPP_MOVEGEN_H

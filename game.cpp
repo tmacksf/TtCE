@@ -11,12 +11,15 @@ using namespace std;
 void initializeMoveGenerationInformation() {
   Bitboard::initAttackTables();
   Magics::generateSlidingAttackTables();
+  Search::initZobrist();
 }
+
+Move Move::killerMove[2][MAX_DEPTH];
+int Move::historyMove[12][64];
 
 int Game() {
   int status = 0;
 
-  /*
   int turn;
   cout << "Select turn (0 for white and 1 for black): ";
   cin >> turn;
@@ -25,16 +28,6 @@ int Game() {
     status = gameLoop(STARTING_FEN, BLACK);
   else
     status = gameLoop(STARTING_FEN, WHITE);
-  */
-
-  gameState gs;
-  gs.initialise(
-      "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R wKQkq - ");
-  Search s;
-  s.findBestMove(gs, 1);
-  s.getBestMove().printMove();
-  cout << "Node count: " << s.getNodes() << " Qnode count: " << s.getQNodes();
-  // cout << s.quiescence(gs, -50000, 50000) << " Qnodes: " << s.getQNodes();
 
   return status;
 }
@@ -74,13 +67,13 @@ void parseUCIMove(std::string &move, int *moveLocation) {
 
 Move isMoveLegal(const vector<Move> &moves, const int *moveLocation) {
   for (int i = 0; i < moves.size(); i++) {
-    if (moves.at(i).fromSquare == moveLocation[0] &&
-        moves.at(i).toSquare == moveLocation[1] &&
-        moves.at(i).promotedPiece == moveLocation[2]) {
+    if (moves.at(i).m_fromSquare == moveLocation[0] &&
+        moves.at(i).m_toSquare == moveLocation[1] &&
+        moves.at(i).m_promotedPiece == moveLocation[2]) {
       return moves.at(i);
     }
   }
-  return Move{-1};
+  return Move{-1, 0};
 }
 
 void playerTurn(int *moveLocation) {
@@ -94,7 +87,11 @@ void playerTurn(int *moveLocation) {
 Move engineTurn(const gameState &gs) {
 
   Search negamaxSearch{};
-  negamaxSearch.findBestMove(gs, 6);
+  negamaxSearch.findBestMove(gs, 7);
+
+  cout << "\nEngine move: ";
+  negamaxSearch.getBestMove().printMove();
+  cout << endl;
 
   return negamaxSearch.getBestMove();
 }
@@ -113,14 +110,14 @@ int gameLoop(const string &startFen, Color engineColor) {
       gs.makeMove(engineTurn(gs));
     } else {
       std::vector<Move> legalMoves;
-      moveGen::legalMoves(gs, legalMoves);
+      moveGen::legalMoves<All>(gs, legalMoves);
       bool validMove = false;
       while (!validMove) {
         int moveLocation[] = {0, 0, 0};
         playerTurn(moveLocation);
         Move m = isMoveLegal(legalMoves, moveLocation);
-        cout << m.fromSquare << m.toSquare << endl;
-        if (m.fromSquare != -1) {
+        cout << m.m_fromSquare << m.m_toSquare << endl;
+        if (m.m_fromSquare != -1) {
           validMove = true;
           gs.makeMove(m);
         } else {
@@ -133,7 +130,7 @@ int gameLoop(const string &startFen, Color engineColor) {
     }
 
     vector<Move> moves;
-    moveGen::legalMoves(gs, moves);
+    moveGen::legalMoves<All>(gs, moves);
     if (gs.isKingInCheck(gs.getAttacking()) && !moves.size()) {
       hasWon = true;
       gs.printing();

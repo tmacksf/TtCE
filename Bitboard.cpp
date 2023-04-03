@@ -141,7 +141,7 @@ void Bitboard::initKingAttacks() {
 BB Bitboard::rayAttack(Direction direction, int index, int depth) {
   // method to get a bitboard containing the ray attack for a specific
   // direction. direction: direction of attack, index: location of the piece,
-  // depth: depth of ray, meaning
+  // depth: depth of ray
   BB attacks = 0ULL;
   for (int i = 0; i < depth; i++) {
     attacks |= 1ULL << (index + direction * (i + 1));

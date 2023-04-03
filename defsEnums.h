@@ -277,4 +277,7 @@ static void printBitString(BB bitboard) {
   }
 }
 
+// Search
+constexpr int MAX_DEPTH = 64;
+
 #endif // CHESS_CPP_DEFSENUMS_H

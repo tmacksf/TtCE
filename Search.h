@@ -8,6 +8,7 @@
 #include "Evaluation.h"
 #include "defsEnums.h"
 #include "moveGen.h"
+#include <random>
 
 class Search {
 private:
@@ -20,20 +21,27 @@ private:
   int m_maxQDepth;
 
 public:
-  Search() : m_bestMove(-1) {
+  // zobrist information
+
+  static BB zArray[12][64];
+  static BB zEP[8];
+  static BB zCastle[4];
+  static BB zBlackMove;
+
+  Search() : m_bestMove() {
     m_nodes = 0;
     m_alpha = -50000;
     m_beta = 50000;
     m_maxDepth = 0;
     m_qNodes = 0;
-    m_maxQDepth = 2;
+    m_maxQDepth = 4;
   }
 
   Move &getBestMove() { return m_bestMove; }
   int getNodes() { return m_nodes; }
   int getQNodes() { return m_qNodes; }
 
-  int quiescence(const gameState &gs, int alpha, int beta, int depth) {
+  int quiescence(gameState &gs, int alpha, int beta, int depth) {
     if (!depth)
       return Evaluation::evaluate(gs);
 
@@ -50,15 +58,19 @@ public:
     std::vector<Move> moves;
     moves.reserve(8);
     moveGen::legalMoves<Captures>(gs, moves);
+    moveGen::sortMoves(gs, moves);
 
     for (Move &m : moves) {
       gameState gsCopy = gs;
       gsCopy.makeMove(m);
       int score = -quiescence(gsCopy, -beta, -alpha, depth - 1);
       if (score >= beta) {
+        Move::killerMove[1][gs.getPly()] = Move::killerMove[0][gs.getPly()];
+        Move::killerMove[0][gs.getPly()] = m;
         return beta;
       }
       if (score > alpha) {
+        Move::historyMove[m.m_piece][m.m_toSquare] += depth;
         alpha = score;
       }
     }
@@ -66,39 +78,47 @@ public:
     return alpha;
   }
 
-  int negamax(const gameState &gs, int alpha, int beta, int depth) {
+  int negamax(gameState &gs, int alpha, int beta, int depth) {
     m_nodes++;
 
     if (depth == 0) {
       return quiescence(gs, alpha, beta, m_maxQDepth);
     }
+    // TODO: add escape for when MAX_DEPTH is reached
 
     std::vector<Move> moves;
     moves.reserve(32);
     moveGen::legalMoves<All>(gs, moves);
+    moveGen::sortMoves(gs, moves);
 
     int oldAlpha = alpha;
-    Move bestSoFar{-1};
+    Move bestSoFar; // holder
 
     bool isKingInCheck = gs.isKingInCheck(gs.getAttacking());
 
-    for (Move m : moves) {
+    for (Move &m : moves) {
       gameState gsCopy = gs;
       gsCopy.makeMove(m);
       int score = -negamax(gsCopy, -beta, -alpha, depth - 1);
 
       // fail hard beta cutoff
       if (score >= beta) {
+        if (!m.m_captureFlag) {
+          Move::killerMove[1][gs.getPly()] = Move::killerMove[0][gs.getPly()];
+          Move::killerMove[0][gs.getPly()] = m;
+        }
         return beta; // move fails high
       }
 
       if (score > alpha) {
         // PV node and where we associate the best move with the best score
+
+        Move::historyMove[m.m_piece][m.m_toSquare] += depth;
         alpha = score;
 
         if (depth == m_maxDepth) {
           m.printMove();
-          std::cout << "Score: " << score << std::endl;
+          std::cout << " Score: " << score << std::endl;
           bestSoFar = m;
         }
       }
@@ -107,8 +127,6 @@ public:
     if (!moves.size()) {
       if (gs.isKingInCheck(gs.getAttacking()))
         return -49000 + m_maxDepth - depth;
-      // not sure if I need to have this but instead need to have a ply (half
-      // move counter)
       else
         return 0; // draw
     }
@@ -117,9 +135,8 @@ public:
       m_bestMove = bestSoFar;
     }
 
-    // move fails low
+    // fails low
     return alpha;
-    // not sure if i have to delete vector
   }
 
   int findBestMove(gameState gs, int depth) {
@@ -127,6 +144,10 @@ public:
     int score = negamax(gs, m_alpha, m_beta, depth);
     return score;
   }
+
+  // Zobrist hashing
+  static void initZobrist();
+  static BB getHash(const gameState &gs);
 };
 
 #endif // CHESS_CPP_SEARCH_H
