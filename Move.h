@@ -22,6 +22,7 @@ public:
   int m_moveScore;
 
 public:
+  // mvv_lva
   static constexpr int mvv_lva[12][12] = {
       // White pieces
       {600, 500, 400, 300, 200, 100, 600, 500, 400, 300, 200, 100},
@@ -51,7 +52,8 @@ public:
         m_castleFlag(castleFlag), m_enPassantFlag(enPassantFlag),
         m_captureFlag(captureFlag), m_doublePushFlag(doublePushFlag),
         m_promotedPiece(promotedPiece) {
-    m_moveScore = m_piece;
+    // m_moveScore = m_piece;
+    m_moveScore = 0;
   }
   Move() = default;
 
@@ -87,7 +89,7 @@ public:
         std::cout << " Castle";
       if (m_enPassantFlag)
         std::cout << " En passant";
-      // std::cout << "\n";
+      std::cout << "\n";
     } else {
       std::cout << boardMap[m_fromSquare] << boardMap[m_toSquare];
       if (m_promotedPiece)
@@ -95,7 +97,8 @@ public:
     }
   }
 
-  void scoreMove(int capturedPiece, int ply) {
+  // will be inline for now
+  void inline scoreMove(int capturedPiece, int ply) {
     if (m_captureFlag) {
       m_moveScore += mvv_lva[m_piece][capturedPiece] + 10000;
     } else {
@@ -108,6 +111,9 @@ public:
         m_moveScore += historyMove[m_piece][m_toSquare];
     }
   }
+
+  // set a high score so it will be sorted to first and be the first move
+  void inline pvMove() { m_moveScore += 20000; }
 };
 
 #endif // CHESS_CPP_MOVE_H

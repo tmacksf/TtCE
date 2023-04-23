@@ -5,6 +5,9 @@
 #include "gameState.h"
 #include "defsEnums.h"
 
+// initialise transposition table
+gameState::TT gameState::hashTable[transpositionTableSize];
+
 gameState::gameState() {
   m_turn = WHITE;
   for (Bitboard &m_bitboard : m_bitboards) {
@@ -17,10 +20,27 @@ gameState::gameState() {
   }
 }
 
+void gameState::clear() {
+  for (Bitboard &b : m_bitboards) {
+    b = Bitboard();
+  }
+  m_turn = WHITE;
+  m_attacking = BLACK;
+  for (int i = 0; i < 4; i++) {
+    m_castling[i] = false;
+  }
+  int m_enPassantSquare = -1;
+  int m_ply = 0;
+  int m_fullMoveCounter = 0;
+  int halfMoveCounter = 0;
+  BB m_attackers = 0ULL;
+}
+
 void gameState::initialise(std::string fen) {
   // splitting the string into two parts, first to define the board position and
   // second to define castling etc.
   int i;
+  m_ply = 0;
 
   std::string s;
   std::stringstream ss(fen);
@@ -72,9 +92,16 @@ void gameState::initialise(std::string fen) {
   int enPSquare = -1;
   char tempEP[2];
   for (i = 0; i < fenSeperated[3].length(); i++) {
-    // Todo make en passant square work...
     tempEP[i] = fenSeperated[3][i];
   }
+  /*
+  if (fenSeperated[3][i] != '-') {
+    m_enPassantSquare = charToFile[fenSeperated[3][0]] +
+                        8 * ((int)fenSeperated[3][1] - '0') - 8;
+
+  } else
+    m_enPassantSquare = enPSquare;
+  */
   m_enPassantSquare = enPSquare;
 
   // TODO half move counter and full move counter
@@ -86,7 +113,7 @@ void gameState::printing() const {
   int square = 64;
   for (int row = 0; row < 8; row++) {
     outString = std::to_string(8 - row);
-    outString += "      ";
+    outString += "    ";
     for (int col = 0; col < 8; col++) {
       square--;
       int flag = 0;
@@ -111,13 +138,28 @@ void gameState::printing() const {
     }
   }
 
-  std::cout << "\n       A  B  C  D  E  F  G  H" << std::endl;
-  std::cout << "Turn: " << m_turn << " Attacking: " << m_attacking << std::endl;
+  std::cout << "\n     A  B  C  D  E  F  G  H" << std::endl;
+  std::string attacking = "Black";
+  std::string turn = "White";
+  if (m_turn)
+    attacking = "White", turn = "Black";
+
+  std::cout << "     Turn: " << turn << " Attacking: " << attacking
+            << std::endl;
+  char cWK = m_castling[0] ? 'K' : '-';
+  char cWQ = m_castling[1] ? 'Q' : '-';
+  char cBK = m_castling[2] ? 'k' : '-';
+  char cBQ = m_castling[3] ? 'q' : '-';
+  std::cout << "     Castling: " << cWK << cWQ << cBK << cBQ;
+
+  std::string epSquarePrinting =
+      m_enPassantSquare == -1 ? "--" : boardMap[m_enPassantSquare];
+
+  std::cout << "  EP:" << epSquarePrinting << std::endl;
 }
 
-// this needs to be sped up. Can do that with method template so each type of
-// move is executed
-void gameState::makeMove(const Move &move) {
+// Method to make a given move, returns zobrist hash of new move
+BB gameState::makeMove(const Move &move, BB moveHash) {
   m_ply++;
   if (m_turn) // if black moves increment the full move counter
     m_fullMoveCounter++;
@@ -127,40 +169,65 @@ void gameState::makeMove(const Move &move) {
   m_bitboards[move.m_piece].unSetBitAt(move.m_fromSquare);
   m_bitboards[move.m_piece].setBitAt(move.m_toSquare);
 
+  moveHash ^= zArray[move.m_piece][move.m_fromSquare];
+  moveHash ^= zArray[move.m_piece][move.m_toSquare];
+
   // don't need to do this before moving piece as we only look at opposing side
   if (move.m_captureFlag) {
-    removePieceOnCapture(move.m_toSquare);
+    int captured = removePieceOnCapture(move.m_toSquare);
+    moveHash ^= zArray[captured][move.m_toSquare];
   }
 
   // white castling priv
   if (move.m_piece == R) {
-    if (move.m_fromSquare == h1)
+    if (move.m_fromSquare == h1 && m_castling[0]) {
       m_castling[0] = false;
-    else if (move.m_fromSquare == a1)
+      moveHash ^= zCastle[0];
+    } else if (move.m_fromSquare == a1 && m_castling[1]) {
       m_castling[1] = false;
+      moveHash ^= zCastle[1];
+    }
   }
   // black castling priv
   if (move.m_piece == r) {
-    if (move.m_fromSquare == h8)
+    if (move.m_fromSquare == h8 && m_castling[2]) {
       m_castling[2] = false;
-    else if (move.m_fromSquare == a8)
+      moveHash ^= zCastle[2];
+    } else if (move.m_fromSquare == a8 && m_castling[3]) {
       m_castling[3] = false;
+      moveHash ^= zCastle[3];
+    }
   }
 
-  if (move.m_piece == K)
+  if (move.m_piece == K) {
+    if (m_castling[0]) {
+      moveHash ^= zCastle[0];
+    }
+    if (m_castling[1]) {
+      moveHash ^= zCastle[1];
+    }
     m_castling[0] = false, m_castling[1] = false;
-  if (move.m_piece == k)
+  }
+  if (move.m_piece == k) {
+    if (m_castling[2])
+      moveHash ^= zCastle[2];
+    if (m_castling[3])
+      moveHash ^= zCastle[3];
     m_castling[2] = false, m_castling[3] = false;
+  }
+
   if (move.m_castleFlag) {
     // if it is black's turn
     if (m_turn) {
       // short castle
       if (move.m_toSquare == g8) {
-        m_bitboards[ROOK + 6].unSetBitAt(h8);
-        m_bitboards[ROOK + 6].setBitAt(f8);
+        m_bitboards[r].unSetBitAt(h8);
+        m_bitboards[r].setBitAt(f8);
+        moveHash ^= zArray[r][h8] ^ zArray[r][f8];
       } else {
-        m_bitboards[ROOK + 6].unSetBitAt(a8);
-        m_bitboards[ROOK + 6].setBitAt(d8);
+        m_bitboards[r].unSetBitAt(a8);
+        m_bitboards[r].setBitAt(d8);
+        moveHash ^= zArray[r][a8] ^ zArray[r][d8];
       }
       m_castling[2] = false;
       m_castling[3] = false;
@@ -169,35 +236,56 @@ void gameState::makeMove(const Move &move) {
       if (move.m_toSquare == g1) {
         m_bitboards[ROOK].unSetBitAt(h1);
         m_bitboards[ROOK].setBitAt(f1);
+        moveHash ^= zArray[R][h1] ^ zArray[R][f1];
       } else {
         m_bitboards[ROOK].unSetBitAt(a1);
         m_bitboards[ROOK].setBitAt(d1);
+        moveHash ^= zArray[R][a1] ^ zArray[R][d1];
       }
       m_castling[0] = false;
       m_castling[1] = false;
     }
   }
 
+  // This takes care of putting the en passant square back to normal
+  if (m_enPassantSquare != -1)
+    moveHash ^= zEP[m_enPassantSquare % 8];
+
   // just going to set en passant to the default unless a pawn is double pushed
   m_enPassantSquare = -1;
   if (move.m_doublePushFlag) {
     // will be -8 if it is white and +8 if it is black
     m_enPassantSquare = move.m_toSquare - 8 + (16 * m_turn);
+    moveHash ^= zEP[m_enPassantSquare % 8];
   }
 
   if (move.m_enPassantFlag) {
     // if it is white's turn it will be -8 on the move to square whereas if it
     // is black it will be a plus 8 thus 16 * 1 + 8
-    removePieceOnCapture(move.m_toSquare - 8 + (16 * m_turn));
+    if (m_turn) {
+      m_bitboards[P].unSetBitAt(move.m_toSquare + 8);
+      moveHash ^= zArray[P][move.m_toSquare + 8];
+    } else {
+      m_bitboards[p].unSetBitAt(move.m_toSquare - 8);
+      moveHash ^= zArray[p][move.m_toSquare - 8];
+    }
+    // removePieceOnCapture(move.m_toSquare - 8 + (16 * m_turn));
   }
 
   if (move.m_promotedPiece) {
+    // need to unset the bit we set earlier
     m_bitboards[move.m_piece].unSetBitAt(move.m_toSquare);
     m_bitboards[move.m_promotedPiece].setBitAt(move.m_toSquare);
+
+    moveHash ^= zArray[move.m_piece][move.m_toSquare];
+    moveHash ^= zArray[move.m_promotedPiece][move.m_toSquare];
   }
 
   m_turn = ~m_turn;
   m_attacking = ~m_attacking;
+  moveHash ^= zBlackToMove;
+
+  return moveHash;
 }
 
 // TODO clean up this function. It's gross
@@ -235,7 +323,6 @@ void gameState::stateToFen() {
   m_turn ? output += 'b' : output += 'w';
   output += ' ';
 
-  // todo deal with no castling
   if (m_castling[0])
     output += 'K';
   if (m_castling[1])
@@ -256,6 +343,7 @@ void gameState::stateToFen() {
 // the king
 // Quick way to optimise would be to place pieces that check the most frequently
 // before
+/*
 void gameState::findAttackingLocation() {
   m_attackers = 0ULL;
   int kingSquare = m_bitboards[6 * m_turn].getLeastSignificantBit();
@@ -328,4 +416,72 @@ void gameState::findAttackingLocation() {
     // has to be captured or king has to move
     m_attackers = pawnAttacks;
   }
+}
+*/
+
+BB gameState::zArray[12][64];
+BB gameState::zEP[8];
+BB gameState::zCastle[4];
+BB gameState::zBlackToMove;
+
+void gameState::initZobrist() {
+  BB rSeed = 3671358418; // for reproducing results
+  // std::random_device rd;
+  // std::mt19937_64 eng(rd());
+  std::mt19937_64 eng(rSeed);
+  std::uniform_int_distribution<unsigned long long> distr;
+  for (int i = 0; i < 12; i++) {
+    for (int j = 0; j < 64; j++) {
+      zArray[i][j] = distr(eng);
+    }
+  }
+  for (int i = 0; i < 8; i++) {
+    zEP[i] = distr(eng);
+  }
+  for (int i = 0; i < 4; i++) {
+    zCastle[i] = distr(eng);
+  }
+  zBlackToMove = distr(eng);
+}
+
+BB gameState::getHash() const {
+  BB zHash = 0ULL;
+  int square;
+  int pt;
+  // piece hashing
+  for (int i = 0; i < 12; i++) {
+    BB pieces = m_bitboards[i].getValue();
+    while (pieces) {
+      square = pop_lsb(pieces);
+      zHash ^= zArray[i][square];
+    }
+  }
+  // EP hashing by column (Get double push square)
+  if (m_enPassantSquare != -1)
+    zHash ^= zEP[m_enPassantSquare % 8];
+
+  // castling
+  for (int i = 0; i < 4; i++) {
+    if (m_castling[i])
+      zHash ^= zCastle[i];
+  }
+
+  if (m_turn)
+    zHash ^= zBlackToMove;
+
+  return zHash;
+}
+
+void gameState::clearTable() {
+  for (int i = 0; i < transpositionTableSize; i++) {
+    gameState::hashTable[i].zkey = 0;
+    gameState::hashTable[i].depth = 0;
+    gameState::hashTable[i].flag = 0;
+    gameState::hashTable[i].score = 0;
+  }
+}
+
+void gameState::allInfo() {
+  stateToFen();
+  std::cout << "Attacking: " << m_attacking << std::endl;
 }

@@ -5,10 +5,21 @@
 
 using namespace std;
 
-int main() {
-  initializeMoveGenerationInformation();
+// static tables are initialised here
+Move Move::killerMove[2][MAX_DEPTH];
+int Move::historyMove[12][64];
 
-  Testing::AllTests();
-  // Game();
+int main() {
+  Search::initEngine();
+
+  bool debug = false;
+  debug = true;
+
+  if (debug)
+    Testing::AllTests();
+  else {
+    UCI uci;
+    uci.UCILoop();
+  }
   return 0;
 }

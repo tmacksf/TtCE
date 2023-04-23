@@ -120,7 +120,7 @@ public:
         allPawnPromotions(from, to, piece, turn, true, moves);
       }
     }
-    if (pawnPromotions && Type == Evasions) {
+    /*if (pawnPromotions && Type == Evasions) {
       BB rightCapture =
           Bitboard::shift<upRight>(pawnPromotions) & gs.getAttackingPieces();
       BB leftCapture =
@@ -145,6 +145,7 @@ public:
         allPawnPromotions(from, to, piece, turn, false, moves);
       }
     }
+    */
 
     if constexpr (Type == Captures) {
       BB rightCapture = Bitboard::shift<upRight>(otherPawns) & enemyBoard;
@@ -161,13 +162,15 @@ public:
                            false);
       }
 
+      // EPs don't count as regular captures but a piece is still removed in
+      // make move function thanks to eps flag
       if (gs.getEPSquare() != -1) {
         // TODO add assert that its on the (relative) 6th rank
         assert(gs.getEPSquare() < 64 and gs.getEPSquare() >= 0);
         BB epPawns = Bitboard::pawnAttacks[~turn][gs.getEPSquare()] & pawns;
         while (epPawns) {
           moves.emplace_back(pop_lsb(epPawns), gs.getEPSquare(), piece, false,
-                             true, true, false, false);
+                             true, false, false, false);
         }
       }
     }
@@ -190,6 +193,7 @@ public:
       }
     }
 
+    /*
     if constexpr (Type == Evasions) {
       BB firstPush = Bitboard::shift<direction>(otherPawns) & emptySquares;
       BB secondPush = Bitboard::shift<direction>(firstPush) &
@@ -206,7 +210,7 @@ public:
           epPawns &= gs.getAttackingPieces();
           while (epPawns) {
             moves.emplace_back(pop_lsb(epPawns), gs.getEPSquare(), piece, false,
-                               true, true, false, false);
+                               true, false, false, false);
           }
         }
       }
@@ -232,6 +236,7 @@ public:
                            false);
       }
     }
+    */
 
     if constexpr (Type == All) {
       pawnMoves<turn, Captures>(gs, moves);
@@ -275,6 +280,7 @@ public:
       }
     }
 
+    /*
     if constexpr (Type == Evasions) {
       bool capture = false;
       while (pieceBitboard) {
@@ -291,6 +297,7 @@ public:
         }
       }
     }
+    */
 
     if constexpr (Type == All) {
       bool capture = false;
@@ -421,7 +428,7 @@ public:
   }
 
   template <MoveType Type>
-  static void legalMoves(gameState &gs, std::vector<Move> &moves) {
+  static void legalMoves(const gameState &gs, std::vector<Move> &moves) {
     int isKingInCheck = gs.isKingInCheck(gs.getAttacking());
 
     std::vector<Move> pseudoLegalMoveVector;
@@ -433,7 +440,7 @@ public:
         kingMoves<WHITE, Type>(gs, pseudoLegalMoveVector);
       for (Move move : pseudoLegalMoveVector) {
         gameState gsCopy = gs;
-        gsCopy.makeMove(move);
+        gsCopy.makeMove(move, 0ULL);
         if (!gsCopy.isKingInCheck(gs.getAttacking()))
           moves.push_back(move);
       }
@@ -466,7 +473,7 @@ public:
       moves.reserve(pseudoLegalMoveVector.size());
       for (Move move : pseudoLegalMoveVector) {
         gameState gsCopy = gs;
-        gsCopy.makeMove(move);
+        gsCopy.makeMove(move, 0ULL);
         if (!gsCopy.isKingInCheck(gs.getAttacking()))
           moves.push_back(move);
       }
@@ -476,7 +483,7 @@ public:
       moves.reserve(pseudoLegalMoveVector.size());
       for (Move move : pseudoLegalMoveVector) {
         gameState gsCopy = gs;
-        gsCopy.makeMove(move);
+        gsCopy.makeMove(move, 0ULL);
         if (!gsCopy.isKingInCheck(gs.getAttacking()))
           moves.push_back(move);
       }
@@ -489,7 +496,7 @@ public:
     moves.reserve(pseudoLegalMoveVector.size());
     for (Move move : pseudoLegalMoveVector) {
       gameState gsCopy = gs;
-      gsCopy.makeMove(move);
+      gsCopy.makeMove(move, 0ULL);
       if (!gsCopy.isKingInCheck(gs.getAttacking()))
         moves.push_back(move);
     }
@@ -503,6 +510,27 @@ public:
     sort(moves.begin(), moves.end(), [](const Move &lhs, const Move &rhs) {
       return lhs.m_moveScore > rhs.m_moveScore;
     });
+  }
+
+  // we use this function to simultaniously check if the PV line continues and
+  // score/sort the moves
+  static inline bool sortMovesPV(const gameState &gs, std::vector<Move> &moves,
+                                 Move &pvMove) {
+    int pvFound = false;
+    for (Move &m : moves) {
+      if (m == pvMove) {
+        m.pvMove();
+        pvFound = true;
+      } else {
+        m.scoreMove(gs.getEnemyPieceAt(m.m_toSquare), gs.getPly());
+      }
+    }
+
+    sort(moves.begin(), moves.end(), [](const Move &lhs, const Move &rhs) {
+      return lhs.m_moveScore > rhs.m_moveScore;
+    });
+
+    return pvFound;
   }
 };
 #endif // CHESS_CPP_MOVEGEN_H

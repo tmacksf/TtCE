@@ -3,19 +3,14 @@
 //
 
 #include "game.h"
-#include "Evaluation.h"
-#include "defsEnums.h"
 
 using namespace std;
 
-void initializeMoveGenerationInformation() {
+void initInformation() {
   Bitboard::initAttackTables();
   Magics::generateSlidingAttackTables();
-  Search::initZobrist();
+  gameState::initZobrist();
 }
-
-Move Move::killerMove[2][MAX_DEPTH];
-int Move::historyMove[12][64];
 
 int Game() {
   int status = 0;
@@ -84,13 +79,13 @@ void playerTurn(int *moveLocation) {
   cout << moveLocation[0] << moveLocation[1] << moveLocation[2] << endl;
 }
 
-Move engineTurn(const gameState &gs) {
+Move engineTurn(gameState &gs) {
 
   Search negamaxSearch{};
-  negamaxSearch.findBestMove(gs, 7);
+  negamaxSearch.findBestMove(gs, 7, 0);
 
   cout << "\nEngine move: ";
-  negamaxSearch.getBestMove().printMove();
+  Move bestMove = negamaxSearch.getBestMove();
   cout << endl;
 
   return negamaxSearch.getBestMove();
@@ -107,7 +102,7 @@ int gameLoop(const string &startFen, Color engineColor) {
     // loop to make sure move is legal
 
     if (gs.getTurn() == engineColor) {
-      gs.makeMove(engineTurn(gs));
+      gs.makeMove(engineTurn(gs), 0ULL);
     } else {
       std::vector<Move> legalMoves;
       moveGen::legalMoves<All>(gs, legalMoves);
@@ -119,7 +114,7 @@ int gameLoop(const string &startFen, Color engineColor) {
         cout << m.m_fromSquare << m.m_toSquare << endl;
         if (m.m_fromSquare != -1) {
           validMove = true;
-          gs.makeMove(m);
+          gs.makeMove(m, 0ULL);
         } else {
           cout << "Move was invalid. Please enter again.\n";
           for (Move m : legalMoves) {
