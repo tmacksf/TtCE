@@ -3,6 +3,7 @@
 //
 
 #include "Testing.h"
+#include "Evaluation.h"
 #include "defsEnums.h"
 #include "gameState.h"
 #include <cstdint>
@@ -16,10 +17,14 @@ int Testing::quickTests() {
   gameState gsGood;
   // gs.initialise("rnbqkbnr/ppppppp1/7p/8/8/7P/PPPPPPP1/RNBQKBNR w KQkq - 0
   // 1");
-  gs.initialise(STARTING_FEN);
+  // gs.initialise("8/p1pR2pp/2k2b2/1p6/1PN2p2/7P/5PPK/1r6 b - - 0 1");
+  gs.initialise("5k2/6p1/6Qp/7P/P3P3/1P4PK/2r2r2/8 w - - 9 44");
+  cout << Evaluation::evaluate(gs);
   Search s;
 
-  allPerftTests();
+  // allPerftTests();
+
+  // s.findBestMove(gs, 25, 30000);
 
   return 0;
 }
@@ -28,7 +33,7 @@ int Testing::AllTests() {
   quickTests();
 
   // BB hash = gs.getHash();
-  // cout << "\nNumber of bad ones: " << hashTesting(gs, 5, hash);
+  // cout << "\nNot passed on: " << hashTesting(gs, 5, hash);
   // perftTest(gs, perftDepth);
   return 0;
 }

@@ -135,6 +135,7 @@ public:
       depth = stoi(result);
     }
 
+    // TODO: Make sure that the time it gets is correct
     if (str.find("wtime") < 150 && !m_gs.getTurn()) {
       int intstart = str.find("wtime") + 6;
 

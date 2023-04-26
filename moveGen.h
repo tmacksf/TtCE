@@ -477,7 +477,6 @@ public:
         if (!gsCopy.isKingInCheck(gs.getAttacking()))
           moves.push_back(move);
       }
-
     } else {
       pseudoLegalMoves<Type>(gs, pseudoLegalMoveVector);
       moves.reserve(pseudoLegalMoveVector.size());

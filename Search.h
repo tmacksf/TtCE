@@ -26,10 +26,10 @@ private:
   Move m_bestMove;
   long long m_startTime;
   long long m_endTime;
+  Move m_hashBestMove;
 
   int pv_length[MAX_DEPTH];
   Move pv_table[MAX_DEPTH][MAX_DEPTH];
-  // std::vector<Move> pv_table[MAX_DEPTH];
   int repetition_table[1000];
   int repetition_index;
 
@@ -128,6 +128,32 @@ public:
       pv_table[i][i].printMove();
       std::cout << " ";
     }
+  }
+
+  int hashPVLine(BB hash, int depth) {
+    gameState gs = m_gs;
+    std::vector<Move> moves;
+    moveGen::legalMoves<All>(gs, moves);
+
+    if (!depth)
+      return 0;
+
+    int bestScore = 0;
+    Move bestMove{};
+
+    for (Move move : moves) {
+      BB newHash = gs.makeMove(move, hash);
+      gameState::TT *hashEntry = gameState::getHashForPV(newHash);
+      int score = hashEntry->score;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = move;
+      }
+    }
+
+    bestMove.printMove();
+    return 0;
   }
 
   int findBestMove(const gameState &gs, int depth, int usingTime) {
@@ -298,8 +324,11 @@ public:
     std::vector<Move> moves;
     moveGen::legalMoves<All>(m_gs, moves);
 
+    bool continuePV = false;
     if (PVLine) {
-      moveGen::sortMoves(m_gs, moves);
+      // moveGen::sortMoves(m_gs, moves);
+      Move pvMove = pv_table[0][ply];
+      continuePV = moveGen::sortMovesPV(m_gs, moves, pvMove);
     } else {
       moveGen::sortMoves(m_gs, moves);
     }
@@ -316,16 +345,19 @@ public:
 
       if (searchedMoves == 0)
         // normal search on pv node/best move
-        score = -negamax(-beta, -alpha, depth - 1, newHash, false);
+        score = -negamax(-beta, -alpha, depth - 1, newHash, continuePV);
 
       else {
+        // LMR
         if (searchedMoves >= FullDepthMoves && depth >= ReductionLimit &&
             in_check == 0 && !move.m_captureFlag && !move.m_promotedPiece)
           score = -negamax(-alpha - 1, -alpha, depth - 2, newHash, false);
 
         else
+          // make sure the moves that pass by LMR are still searched
           score = alpha + 1;
 
+        // PVS
         if (score > alpha) {
           score = -negamax(-alpha - 1, -alpha, depth - 1, newHash, false);
 
@@ -363,11 +395,11 @@ public:
           }
           return beta;
         }
-        pv_table[ply][ply] = move;
 
+        // PV table
+        pv_table[ply][ply] = move;
         for (int next_ply = ply + 1; next_ply < pv_length[ply + 1]; next_ply++)
           pv_table[ply][next_ply] = pv_table[ply + 1][next_ply];
-
         pv_length[ply] = pv_length[ply + 1];
       }
     }

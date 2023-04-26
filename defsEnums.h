@@ -225,8 +225,8 @@ inline int pop_lsb(BB &b) {
 
 // for evaluation
 
-constexpr int pieceValues[] = {10000,  9000,  500,  350,  300,  100,
-                               -10000, -9000, -500, -350, -300, -100};
+constexpr int pieceValues[] = {10000,  900,  500,  350,  300,  100,
+                               -10000, -900, -500, -350, -300, -100};
 
 // CURRENT POSITION TABLES ARE FROM CHESS PROGRAMMING ON YOUTUBE
 constexpr int pawnTable[] = {

@@ -13,7 +13,7 @@ int main() {
   Search::initEngine();
 
   bool debug = false;
-  debug = true;
+  // debug = true;
 
   if (debug)
     Testing::AllTests();

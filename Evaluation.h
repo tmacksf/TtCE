@@ -20,8 +20,7 @@ public:
   static inline int pieceScores(const gameState &gs) {
     int total = 0;
     for (int i = 0; i < pieceCount; i++) {
-      BB temp = gs.getBitboard(i).bitCount();
-      total += temp * pieceValues[i];
+      total += gs.getBitboard(i).bitCount() * pieceValues[i];
     }
     return total;
   }
