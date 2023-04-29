@@ -1,12 +1,6 @@
-//
-// Created by Thomas Mack on 23/12/2022.
-//
-
 #ifndef CHESS_CPP_MOVEGEN_H
 #define CHESS_CPP_MOVEGEN_H
-#include "defsEnums.h"
 #include "gameState.h"
-#include <vector>
 
 class moveGen {
 public:

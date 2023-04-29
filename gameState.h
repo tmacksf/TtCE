@@ -88,6 +88,11 @@ public:
     return -1;
   }
 
+  // TODO: Change to
+  int inline getPieceCount(int piece) const {
+    return m_bitboards[piece].bitCount();
+  }
+
   [[nodiscard]] BB inline friendlyBoard() const {
     BB friendly = 0ULL;
     for (int i = 0; i < 6; i++)

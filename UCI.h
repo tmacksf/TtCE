@@ -36,11 +36,19 @@ public:
     if (move.length() == 5) {
       if (move[4] == 'q') {
         promotedPiece = QUEEN + addition;
+      } else if (move[4] == 'Q') {
+        promotedPiece = QUEEN + addition;
       } else if (move[4] == 'r') {
+        promotedPiece = ROOK + addition;
+      } else if (move[4] == 'R') {
         promotedPiece = ROOK + addition;
       } else if (move[4] == 'b') {
         promotedPiece = BISHOP + addition;
+      } else if (move[4] == 'B') {
+        promotedPiece = BISHOP + addition;
       } else if (move[4] == 'k') {
+        promotedPiece = KNIGHT + addition;
+      } else if (move[4] == 'K') {
         promotedPiece = KNIGHT + addition;
       }
 

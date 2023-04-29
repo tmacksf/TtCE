@@ -15,16 +15,11 @@ using namespace std;
 int Testing::quickTests() {
   gameState gs;
   gameState gsGood;
-  // gs.initialise("rnbqkbnr/ppppppp1/7p/8/8/7P/PPPPPPP1/RNBQKBNR w KQkq - 0
-  // 1");
-  // gs.initialise("8/p1pR2pp/2k2b2/1p6/1PN2p2/7P/5PPK/1r6 b - - 0 1");
-  gs.initialise("5k2/6p1/6Qp/7P/P3P3/1P4PK/2r2r2/8 w - - 9 44");
-  cout << Evaluation::evaluate(gs);
+  gs.initialise(POSITION_3);
+  gs.printing();
   Search s;
-
-  // allPerftTests();
-
-  // s.findBestMove(gs, 25, 30000);
+  // s.testingFindBestMove(gs, 7);
+  cout << Eval::Evaluation::evaluate(gs);
 
   return 0;
 }
@@ -65,7 +60,7 @@ BB Testing::Perft(gameState &gs, int depth) {
   std::vector<Move> moves;
   moves.reserve(32);
   moveGen::legalMoves<All>(gs, moves);
-  // moveGen::mg2(gs, moves);
+  // moveGenTesting::legalMoves<All>(gs, moves);
 
   if (depth == 1)
     return moves.size();
@@ -172,66 +167,93 @@ void Testing::allPerftTests() {
   gs.initialise(STARTING_FEN);
   int testsPassed = 0;
 
+  auto start = chrono::steady_clock::now();
   int nodes = 0;
   nodes = Perft(gs, 6);
+  auto end = chrono::steady_clock::now();
+  auto diff = end - start;
   if (nodes == nodeCount[0][6]) {
     testsPassed += 1;
-    cout << "Passed 1, Nodes: " << nodes << endl;
+    cout << "Passed 1, Nodes: " << nodes
+         << " Time: " << chrono::duration<double, milli>(diff).count() << endl;
   }
   gs.clear();
 
   gs.initialise(TRICKY_POSITION);
   nodes = 0;
+  start = chrono::steady_clock::now();
   nodes = Perft(gs, 5);
+  end = chrono::steady_clock::now();
+  diff = end - start;
   if (nodes == nodeCount[1][5]) {
     testsPassed += 1;
-    cout << "Passed 2, Nodes: " << nodes << endl;
+    cout << "Passed 2, Nodes: " << nodes
+         << " Time: " << chrono::duration<double, milli>(diff).count() << endl;
   }
   gs.clear();
 
   gs.initialise(POSITION_3);
   nodes = 0;
+  start = chrono::steady_clock::now();
   nodes = Perft(gs, 6);
+  end = chrono::steady_clock::now();
+  diff = end - start;
   if (nodes == nodeCount[2][6]) {
     testsPassed += 1;
-    cout << "Passed 3, Nodes: " << nodes << endl;
+    cout << "Passed 3, Nodes: " << nodes
+         << " Time: " << chrono::duration<double, milli>(diff).count() << endl;
   }
   gs.clear();
 
   gs.initialise(POSITION_4);
   nodes = 0;
+  start = chrono::steady_clock::now();
   nodes = Perft(gs, 6);
+  end = chrono::steady_clock::now();
+  diff = end - start;
   if (nodes == nodeCount[3][6]) {
     testsPassed += 1;
-    cout << "Passed 4, Nodes: " << nodes << endl;
+    cout << "Passed 4, Nodes: " << nodes
+         << " Time: " << chrono::duration<double, milli>(diff).count() << endl;
   }
   gs.clear();
 
   gs.initialise(POSITION_4_1);
   nodes = 0;
+  start = chrono::steady_clock::now();
   nodes = Perft(gs, 6);
+  end = chrono::steady_clock::now();
+  diff = end - start;
   if (nodes == nodeCount[3][6]) {
     testsPassed += 1;
-    cout << "Passed 4.1, Nodes: " << nodes << endl;
+    cout << "Passed 5, Nodes: " << nodes
+         << " Time: " << chrono::duration<double, milli>(diff).count() << endl;
   }
   gs.clear();
 
   gs.initialise(POSITION_5);
   nodes = 0;
+  start = chrono::steady_clock::now();
   nodes = Perft(gs, 5);
+  end = chrono::steady_clock::now();
+  diff = end - start;
   if (nodes == nodeCount[4][5]) {
     testsPassed += 1;
-    cout << "Passed 5, Nodes: " << nodes << endl;
-    ;
+    cout << "Passed 6, Nodes: " << nodes
+         << " Time: " << chrono::duration<double, milli>(diff).count() << endl;
   }
   gs.clear();
 
   gs.initialise(POSITION_6);
   nodes = 0;
+  start = chrono::steady_clock::now();
   nodes = Perft(gs, 5);
+  end = chrono::steady_clock::now();
+  diff = end - start;
   if (nodes == nodeCount[5][5]) {
     testsPassed += 1;
-    cout << "Passed 6, Nodes: " << nodes << endl;
+    cout << "Passed 7, Nodes: " << nodes
+         << " Time: " << chrono::duration<double, milli>(diff).count() << endl;
   }
 
   if (testsPassed == 7) {

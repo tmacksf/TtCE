@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <vector>
 
 class Search {
 private:
@@ -33,6 +34,8 @@ private:
   int repetition_table[1000];
   int repetition_index;
 
+  // killer moves
+
   static constexpr int FullDepthMoves = 4;
   static constexpr int ReductionLimit = 3;
 
@@ -52,6 +55,11 @@ public:
   int getNodes() { return m_nodes; }
   int getQNodes() { return m_qNodes; }
   Move getBestMove() { return pv_table[0][0]; }
+
+  // testing
+  void setGs(const gameState &gs) { m_gs = gs; }
+  gameState *getGs() { return &m_gs; }
+  Move testingBestMove() { return m_bestMove; }
 
   void printBestMove() {
     std::cout << "bestmove ";
@@ -87,7 +95,7 @@ public:
     if (m_qNodes % 2047 == 0)
       communicate();
 
-    int eval = Evaluation::evaluate(gs);
+    int eval = Eval::Evaluation::evaluate(gs);
     if (ply > 64)
       return eval;
 
@@ -125,7 +133,9 @@ public:
 
   void printPVLine() {
     for (int i = 0; i < m_maxDepth; i++) {
-      pv_table[i][i].printMove();
+      if (pv_table[0][i].m_fromSquare == 0 && pv_table[0][i].m_toSquare == 0)
+        continue;
+      pv_table[0][i].printMove();
       std::cout << " ";
     }
   }
@@ -173,11 +183,9 @@ public:
     gameState::clearTable();
 
     int score;
-    int alpha;
-    int beta;
+    int alpha = -INFINITE;
+    int beta = INFINITE;
     int currentDepth;
-    alpha = -INFINITE;
-    beta = INFINITE;
     m_maxDepth = 0;
 
     // iterative deepening
@@ -270,8 +278,8 @@ public:
     int ply = m_gs.getPly();
     int hashFlag = hashFlagExact;
 
-    if (ply && is_repetition(hash))
-      return 0;
+    // if (ply && is_repetition(hash))
+    // return 0;
 
     int pv_node = beta - alpha > 1;
 
@@ -385,6 +393,11 @@ public:
           Move::historyMove[move.m_piece][move.m_toSquare] += depth;
 
         alpha = score;
+        // PV table
+        pv_table[ply][ply] = move;
+        for (int next_ply = ply + 1; next_ply < pv_length[ply + 1]; next_ply++)
+          pv_table[ply][next_ply] = pv_table[ply + 1][next_ply];
+        pv_length[ply] = pv_length[ply + 1];
 
         if (score >= beta) {
           gameState::insertHash(hash, beta, depth, hashFlagBeta, ply);
@@ -395,38 +408,226 @@ public:
           }
           return beta;
         }
-
-        // PV table
-        pv_table[ply][ply] = move;
-        for (int next_ply = ply + 1; next_ply < pv_length[ply + 1]; next_ply++)
-          pv_table[ply][next_ply] = pv_table[ply + 1][next_ply];
-        pv_length[ply] = pv_length[ply + 1];
       }
     }
 
     if (!moves.size()) {
       if (in_check)
         return -MATE_VALUE + ply;
-
       else
         return 0;
     }
     gameState::insertHash(hash, alpha, depth, hashFlag, ply);
 
-    /*
-    if (hashFlag == hashFlagExact)
-      gameState::insertHash(hash, alpha, depth, hashFlag, ply);
-    else {
-      // if the hash entry is not exact, check if it exists as exact and do
-    not
-      // write. This is to prevent overwriting a PV node
-      if (!gameState::checkHashEntry(hash))
-        gameState::insertHash(hash, alpha, depth, hashFlag, ply);
+    return alpha;
+  }
+
+  // Testing
+  /*
+  int searchTest(int alpha, int beta, int depth, int hash, bool PVLine) {
+    int score;
+    int ply = m_gs.getPly();
+    int hashFlag = hashFlagExact;
+
+    int pv_node = beta - alpha > 1;
+
+    if (ply &&
+        (score = gameState::getHashEntry(hash, alpha, beta, depth)) !=
+            valUnknown &&
+        pv_node == 0)
+      return score;
+
+    // init PV length
+    pv_length[ply] = ply;
+
+    if (depth == 0)
+      return quiescence(m_gs, alpha, beta);
+
+    m_nodes++;
+
+    int in_check = m_gs.isKingInCheck();
+
+    // if (in_check)
+    //  depth++;
+
+    // null move pruning
+    if (depth >= 3 && in_check == 0 && ply) {
+      gameState gsCopy = m_gs;
+      BB newHash = m_gs.makeNullMove(hash);
+
+      repetition_index++;
+      repetition_table[repetition_index] = hash;
+
+      score = -negamax(-beta, -beta + 1, depth - 1 - 2, newHash, false);
+
+      repetition_index--;
+      m_gs = gsCopy;
+      // reutrn 0 if time is up
+      if (m_stopped == 1)
+        return 0;
+
+      // fail-hard beta cutoff
+      if (score >= beta)
+        // node (position) fails high
+        return beta;
     }
-    */
+
+    std::vector<Move> moves;
+    moveGen::legalMoves<All>(m_gs, moves);
+
+    bool continuePV = false;
+    if (PVLine) {
+      Move pvMove = pv_table[0][ply];
+      continuePV = moveGen::sortMovesPV(m_gs, moves, pvMove);
+    } else {
+      moveGen::sortMoves(m_gs, moves);
+    }
+
+    int searchedMoves = 0;
+
+    for (Move move : moves) {
+      gameState gsCopy = m_gs;
+
+      BB newHash = m_gs.makeMove(move, hash);
+      // score = -searchTest(-beta, -alpha, depth - 1, newHash, continuePV);
+
+      if (searchedMoves == 0)
+        // normal search on pv node/best move
+        score = -searchTest(-beta, -alpha, depth - 1, newHash, continuePV);
+
+      else {
+        // LMR
+        if (searchedMoves >= FullDepthMoves && depth >= ReductionLimit &&
+            in_check == 0 && !move.m_captureFlag && !move.m_promotedPiece)
+          score = -searchTest(-alpha - 1, -alpha, depth - 2, newHash, false);
+
+        else
+          // make sure the moves that pass by LMR are still searched
+          score = alpha + 1;
+
+        // PVS
+        if (score > alpha) {
+          score = -searchTest(-alpha - 1, -alpha, depth - 1, newHash, false);
+
+          if ((score > alpha) && (score < beta))
+            score = -searchTest(-beta, -alpha, depth - 1, newHash, false);
+        }
+      }
+
+      // take back move
+      m_gs = gsCopy;
+
+      searchedMoves++;
+
+      if (score > alpha) {
+        hashFlag = hashFlagExact;
+
+        if (!move.m_captureFlag)
+          Move::historyMove[move.m_piece][move.m_toSquare] += depth;
+
+        alpha = score;
+        // PV table
+        pv_table[ply][ply] = move;
+        for (int next_ply = ply + 1; next_ply < pv_length[ply + 1]; next_ply++)
+          pv_table[ply][next_ply] = pv_table[ply + 1][next_ply];
+        pv_length[ply] = pv_length[ply + 1];
+
+        if (score >= beta) {
+          gameState::insertHash(hash, beta, depth, hashFlagBeta, ply);
+
+          if (!move.m_captureFlag) {
+            Move::killerMove[1][ply] = Move::killerMove[0][ply];
+            Move::killerMove[0][ply] = move;
+          }
+          return beta;
+        }
+      }
+    }
+
+    if (!moves.size()) {
+      if (in_check)
+        return -MATE_VALUE + ply;
+      else
+        return 0;
+    }
+    gameState::insertHash(hash, alpha, depth, hashFlag, ply);
 
     return alpha;
   }
+
+  int testingFindBestMove(const gameState &gs, int depth) {
+
+    m_stopped = 0;
+
+    // wipe old info
+    memset(Move::killerMove, 0, sizeof(Move::killerMove));
+    memset(Move::historyMove, 0, sizeof(Move::historyMove));
+    clearPV();
+    memset(repetition_table, 0, sizeof(repetition_table));
+
+    // init hash table
+    gameState::clearTable();
+
+    int score;
+    int alpha;
+    int beta;
+    int currentDepth;
+    alpha = -INFINITE;
+    beta = INFINITE;
+    m_maxDepth = depth;
+
+    // iterative deepening
+    m_gs = gs;
+    m_gs.setPly(0);
+    auto begin = std::chrono::high_resolution_clock::now();
+    m_nodes = 0;
+    m_qNodes = 0;
+    repetition_index = 0;
+    currentDepth = m_maxDepth;
+    BB posHash = m_gs.getHash();
+    // score = negamax(alpha, beta, currentDepth, posHash, true);
+    score = searchTest(alpha, beta, currentDepth, posHash, true);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin)
+            .count();
+
+    float nps = 0.0;
+    if (duration) {
+      nps = (m_nodes + m_qNodes) * 1000000000.0 / duration;
+    } else {
+      nps = 1.0;
+    }
+    // engine info section
+    std::cout << "info depth " << currentDepth;
+    if (score > -MATE_VALUE && score < -MATE_SCORE) {
+      std::cout << " mate " << -(score + MATE_VALUE) / 2 - 1;
+
+    } else if (score < MATE_VALUE && score > MATE_SCORE) {
+      std::cout << " mate " << (MATE_VALUE - score) / 2 - 1;
+
+    } else {
+      std::cout << " score cp " << score;
+    }
+    std::cout << " time " << duration / 1000000 << " nodes "
+              << m_nodes + m_qNodes << " nps " << nps << " pv ";
+
+    printPVLine();
+    std::cout << std::endl;
+    m_bestMove = pv_table[0][0];
+
+    if (!m_stopped) {
+      std::cout << "bestmove ";
+      pv_table[0][0].printMove();
+      std::cout << "\n";
+    } else {
+      std::cout << "bestmove ";
+      m_bestMove.printMove();
+      std::cout << "\n";
+    }
+    return score;
+  }
+  */
 };
 
 #endif // CHESS_CPP_SEARCH_H
