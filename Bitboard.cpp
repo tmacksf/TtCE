@@ -2,7 +2,7 @@
 // Created by Thomas Mack on 03/01/2023.
 //
 
-#include "Bitboard.h"
+#include "Bitboard.hpp"
 #include <cstdlib>
 
 int Bitboard::getBitAt(int index) const {

@@ -2,7 +2,7 @@
 // Created by Thomas Mack on 23/12/2022.
 //
 
-#include "moveGen.h"
+#include "moveGen.hpp"
 
 // TODO optimize a lot (There is a ton to do here but this is an easy start)
 /*void moveGen::legalMoves(const gameState &gs, std::vector<Move> &legalMoves) {

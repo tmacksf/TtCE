@@ -2,7 +2,7 @@
 // Created by Thomas Mack on 29/01/2023.
 //
 
-#include "Magics.h"
+#include "Magics.hpp"
 
 BB Magics::rookMask[64];
 BB Magics::bishopMask[64];

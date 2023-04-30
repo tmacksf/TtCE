@@ -2,10 +2,9 @@
 // Created by Thomas Mack on 04/02/2023.
 //
 
-#include "Testing.h"
-#include "Evaluation.h"
-#include "defsEnums.h"
-#include "gameState.h"
+#include "Testing.hpp"
+#include "Evaluation.hpp"
+#include "gameState.hpp"
 #include <cstdint>
 #include <ctime>
 #include <sys/_types/_int64_t.h>

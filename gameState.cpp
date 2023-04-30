@@ -2,8 +2,8 @@
 // Created by Thomas Mack on 28/12/2022.
 //
 
-#include "gameState.h"
-#include "defsEnums.h"
+#include "gameState.hpp"
+#include "defsEnums.hpp"
 
 // initialise transposition table
 gameState::TT gameState::hashTable[transpositionTableSize];
