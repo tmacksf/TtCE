@@ -1,2 +1,2 @@
 # Thomas the Chess Engine
-A chess engine written in C++ using bitboard based board representation, very basic evaluation function, and alpha-beta search.
+A UCI compliant chess engine written in C++ using a bitboard based board representation, evaluation function taken from PeSTO, and alpha-beta search.
