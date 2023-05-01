@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace TtCE {
+
 void initInformation() {
   Bitboard::initAttackTables();
   Magics::generateSlidingAttackTables();
@@ -142,3 +144,4 @@ int gameLoop(const string &startFen, Color engineColor) {
   }
   return 0;
 }
+} // namespace TtCE

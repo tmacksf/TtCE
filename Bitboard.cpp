@@ -5,6 +5,8 @@
 #include "Bitboard.hpp"
 #include <cstdlib>
 
+namespace TtCE {
+
 int Bitboard::getBitAt(int index) const {
   assert(index >= 0 and index < 64);
   return (m_bitboard & (1ULL << index)) ? 1 : 0;
@@ -187,3 +189,4 @@ void Bitboard::initKnightAttacks() {
     }
   }
 }
+} // namespace TtCE

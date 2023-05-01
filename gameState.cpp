@@ -5,6 +5,7 @@
 #include "gameState.hpp"
 #include "defsEnums.hpp"
 
+namespace TtCE {
 // initialise transposition table
 gameState::TT gameState::hashTable[transpositionTableSize];
 
@@ -485,3 +486,4 @@ void gameState::allInfo() {
   stateToFen();
   std::cout << "Attacking: " << m_attacking << std::endl;
 }
+} // namespace TtCE

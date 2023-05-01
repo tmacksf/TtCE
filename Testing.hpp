@@ -2,10 +2,12 @@
 // Created by Thomas Mack on 04/02/2023.
 //
 
-#ifndef CHESS_CPP_TESTING_H
-#define CHESS_CPP_TESTING_H
+#ifndef TTCE_TESTING_HPP
+#define TTCE_TESTING_HPP
 
 #include "UCI.hpp"
+
+namespace TtCE {
 
 class Testing {
 public:
@@ -21,5 +23,6 @@ public:
 
   static int hashTesting(gameState &gs, int depth, BB hash);
 };
+} // namespace TtCE
 
-#endif // CHESS_CPP_TESTING_H
+#endif // TTCE_TESTING_HPP

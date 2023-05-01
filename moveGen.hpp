@@ -1,6 +1,8 @@
-#ifndef CHESS_CPP_MOVEGEN_H
-#define CHESS_CPP_MOVEGEN_H
+#ifndef TTCE_MOVEGEN_HPP
+#define TTCE_MOVEGEN_HPP
 #include "gameState.hpp"
+
+namespace TtCE {
 
 class moveGen {
 public:
@@ -526,4 +528,6 @@ public:
     return pvFound;
   }
 };
-#endif // CHESS_CPP_MOVEGEN_H
+
+} // namespace TtCE
+#endif // TTCE_MOVEGEN_HPP

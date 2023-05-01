@@ -4,21 +4,20 @@
 #include "Testing.hpp"
 
 using namespace std;
-
 // static tables are initialised here
-Move Move::killerMove[2][MAX_DEPTH];
-int Move::historyMove[12][64];
+TtCE::Move TtCE::Move::killerMove[2][MAX_DEPTH];
+int TtCE::Move::historyMove[12][64];
 
 int main() {
-  Search::initEngine();
+  TtCE::Search::initEngine();
 
   bool debug = false;
-  // debug = true;
+  debug = true;
 
   if (debug)
-    Testing::AllTests();
+    TtCE::Testing::AllTests();
   else {
-    UCI uci;
+    TtCE::UCI uci;
     uci.UCILoop();
   }
   return 0;

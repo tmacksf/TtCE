@@ -4,6 +4,8 @@
 
 #include "Magics.hpp"
 
+namespace TtCE {
+
 BB Magics::rookMask[64];
 BB Magics::bishopMask[64];
 BB Magics::rookMagics[64];
@@ -291,3 +293,4 @@ void Magics::generateSlidingAttackTables() {
   initRookAttacks();
   initBishopAttacks();
 }
+} // namespace TtCE

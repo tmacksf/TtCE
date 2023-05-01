@@ -4,6 +4,7 @@
 
 #include "Testing.hpp"
 #include "Evaluation.hpp"
+#include "defsEnums.hpp"
 #include "gameState.hpp"
 #include <cstdint>
 #include <ctime>
@@ -11,10 +12,12 @@
 #include <typeinfo>
 using namespace std;
 
+namespace TtCE {
+
 int Testing::quickTests() {
   gameState gs;
   gameState gsGood;
-  gs.initialise(POSITION_3);
+  gs.initialise(STARTING_FEN);
   gs.printing();
   Search s;
   // s.testingFindBestMove(gs, 7);
@@ -261,3 +264,4 @@ void Testing::allPerftTests() {
     cout << "Failed" << endl;
   }
 }
+} // namespace TtCE

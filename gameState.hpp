@@ -2,12 +2,14 @@
 // Created by Thomas Mack on 28/12/2022.
 //
 
-#ifndef CHESS_CPP_GAMESTATE_H
-#define CHESS_CPP_GAMESTATE_H
+#ifndef TTCE_GAMESTATE_HPP
+#define TTCE_GAMESTATE_HPP
 
 #include "Move.hpp"
 #include "defsEnums.hpp"
 #include <stdexcept>
+
+namespace TtCE {
 
 class gameState {
 private:
@@ -285,5 +287,6 @@ public:
     hashLoc->flag = flag;
   }
 };
+} // namespace TtCE
 
-#endif // CHESS_CPP_GAMESTATE_H
+#endif // TTCE_GAMESTATE_HPP

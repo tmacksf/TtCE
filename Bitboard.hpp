@@ -3,8 +3,10 @@
 //
 #include "defsEnums.hpp"
 
-#ifndef CHESS_CPP_BITBOARDS_H
-#define CHESS_CPP_BITBOARDS_H
+#ifndef TTCE_BITBOARDS_HPP
+#define TTCE_BITBOARDS_HPP
+
+namespace TtCE {
 
 class Bitboard {
 private:
@@ -70,5 +72,6 @@ public:
                              : 0;
   }
 };
+}; // namespace TtCE
 
-#endif // CHESS_CPP_BITBOARDS_H
+#endif // TTCE_BITBOARDS_H

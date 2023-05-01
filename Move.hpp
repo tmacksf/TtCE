@@ -2,10 +2,12 @@
 // Created by Thomas Mack on 05/01/2023.
 //
 
-#ifndef CHESS_CPP_MOVE_H
-#define CHESS_CPP_MOVE_H
+#ifndef TTCE_MOVE_HPP
+#define TTCE_MOVE_HPP
 #include "Magics.hpp"
 #include "defsEnums.hpp"
+
+namespace TtCE {
 
 class Move {
   // TODO: Make private
@@ -115,5 +117,6 @@ public:
   // set a high score so it will be sorted to first and be the first move
   void inline pvMove() { m_moveScore += 20000; }
 };
+} // namespace TtCE
 
-#endif // CHESS_CPP_MOVE_H
+#endif // TTCE_MOVE_HPP

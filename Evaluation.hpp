@@ -2,11 +2,12 @@
 // Created by Thomas Mack on 02/03/2023.
 //
 
-#ifndef CHESS_CPP_EVALUATION_H
-#define CHESS_CPP_EVALUATION_H
-#include "defsEnums.hpp"
+#ifndef TTCE_EVALUATION_HPP
+#define TTCE_EVALUATION_HPP
+
 #include "gameState.hpp"
 
+namespace TtCE {
 namespace Eval {
 
 class Evaluation {
@@ -60,22 +61,26 @@ public:
     int total = 0;
     BB pieceBitboard;
 
-    // white pieces
     for (int i = K; i < k; i++) {
+      // white pieces
       pieceBitboard = gs.getBitboard(i).getValue();
 
       while (pieceBitboard) {
-        int location = pop_lsb(pieceBitboard);
-        total += scoreForSquare<gamePhase, WHITE>(i, location, phaseScore);
+        int location = 63 - pop_lsb(pieceBitboard);
+        total += scoreForSquare<gamePhase>(i, location, phaseScore);
+        std::cout << "Piece: " << pieceToChar[i] << " Score: "
+                  << scoreForSquare<gamePhase>(i, location, phaseScore)
+                  << " Location: " << 63 - location << "\n";
       }
-    }
 
-    // black pieces
-    for (int i = K; i < k; i++) {
+      // black pieces
       pieceBitboard = gs.getBitboard(i + 6).getValue();
       while (pieceBitboard) {
-        int location = pop_lsb(pieceBitboard);
-        total -= scoreForSquare<gamePhase, BLACK>(i, location, phaseScore);
+        int location = mirrorScores[pop_lsb(pieceBitboard)];
+        total -= scoreForSquare<gamePhase>(i, location, phaseScore);
+        std::cout << "Piece: " << pieceToChar[i + 6] << " Score: "
+                  << scoreForSquare<gamePhase>(i, location, phaseScore)
+                  << " Phase: " << phaseScore << "\n";
       }
     }
     return total;
@@ -83,9 +88,8 @@ public:
 
   // Gets score for a position from the piece tables based on game phase and
   // turn
-  template <Phase gamePhase, Color Turn>
-  static inline int scoreForSquare(int piece, int loc, int phaseScore) {
-    int location = (Turn == BLACK ? mirrorScores[loc] : 63 - loc);
+  template <Phase gamePhase>
+  static inline int scoreForSquare(int piece, int location, int phaseScore) {
     int score = 0;
 
     if constexpr (gamePhase == Middlegame) {
@@ -130,7 +134,6 @@ public:
     return 0;
   }
 };
-
 } // namespace Eval
-
-#endif // CHESS_CPP_EVALUATION_H
+} // namespace TtCE
+#endif // TTCE_EVALUATION_HPP

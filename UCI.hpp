@@ -1,9 +1,14 @@
+#ifndef TTCE_UCI_HPP
+#define TTCE_UCI_HPP
+
 #include "Search.hpp"
 #include "defsEnums.hpp"
 #include <sstream>
 #include <stdexcept>
 
 using namespace std;
+
+namespace TtCE {
 
 class UCI {
 private:
@@ -301,3 +306,6 @@ public:
     }
   }
 };
+} // namespace TtCE
+
+#endif // TTCE_UCI_HPP

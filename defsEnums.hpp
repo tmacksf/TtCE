@@ -2,8 +2,8 @@
 // Created by Tommy on 1/8/2023.
 //
 
-#ifndef CHESS_CPP_DEFSENUMS_H
-#define CHESS_CPP_DEFSENUMS_H
+#ifndef TTCE_DEFSENUMS_HPP
+#define TTCE_DEFSENUMS_HPP
 
 #include <bitset>
 #include <cassert>
@@ -18,7 +18,7 @@
 #include <vector>
 
 // TODO: Make this the namespace for the whole project
-namespace ttce {}
+namespace TtCE {
 // testing positions
 #define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define TRICKY_POSITION                                                        \
@@ -278,7 +278,7 @@ static inline int64_t time_ms(void) {
 
 namespace Eval {
 // enum for the phase of the game
-enum Phase { Opening, Endgame, Middlegame };
+enum Phase : int { Opening = 0, Endgame = 1, Middlegame = 2 };
 
 constexpr int OPENINGSCORE = 6192;
 constexpr int ENDGAMESCORE = 518;
@@ -407,6 +407,6 @@ constexpr int mirrorScores[] = {
     a5, b5, c5, d5, e5, f5, g5, h5, a6, b6, c6, d6, e6, f6, g6, h6,
     a7, b7, c7, d7, e7, f7, g7, h7, a8, b8, c8, d8, e8, f8, g8, h8,
 };
-}; // namespace Eval
-
-#endif // CHESS_CPP_DEFSENUMS_H
+};     // namespace Eval
+};     // namespace TtCE
+#endif // TTCE_DEFSENUMS_HPP

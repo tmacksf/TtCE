@@ -2,10 +2,11 @@
 // Created by Thomas Mack on 29/01/2023.
 //
 
-#ifndef CHESS_CPP_MAGICS_H
-#define CHESS_CPP_MAGICS_H
+#ifndef TTCE_MAGICS_HPP
+#define TTCE_MAGICS_HPP
 #include "Bitboard.hpp"
 
+namespace TtCE {
 class Magics {
 public:
   // magic bitboard information
@@ -175,5 +176,6 @@ public:
            getRookAttacks(square, blockers);
   }
 };
+} // namespace TtCE
 
 #endif // CHESS_CPP_MAGICS_H

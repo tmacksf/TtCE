@@ -2,8 +2,8 @@
 // Created by Thomas Mack on 08/03/2023.
 //
 
-#ifndef CHESS_CPP_SEARCH_H
-#define CHESS_CPP_SEARCH_H
+#ifndef TTCE_SEARCH_HPP
+#define TTCE_SEARCH_HPP
 
 #include "Evaluation.hpp"
 #include "moveGen.hpp"
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <random>
 #include <vector>
+
+namespace TtCE {
 
 class Search {
 private:
@@ -438,5 +440,6 @@ public:
     return alpha;
   }
 };
+} // namespace TtCE
 
-#endif // CHESS_CPP_SEARCH_H
+#endif // TTCE_SEARCH_HPP
