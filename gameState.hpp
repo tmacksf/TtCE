@@ -6,8 +6,6 @@
 #define TTCE_GAMESTATE_HPP
 
 #include "Move.hpp"
-#include "defsEnums.hpp"
-#include <stdexcept>
 
 namespace TtCE {
 

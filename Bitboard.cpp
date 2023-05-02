@@ -3,7 +3,6 @@
 //
 
 #include "Bitboard.hpp"
-#include <cstdlib>
 
 namespace TtCE {
 

@@ -12,7 +12,7 @@ int main() {
   TtCE::Search::initEngine();
 
   bool debug = false;
-  debug = true;
+  // debug = true;
 
   if (debug)
     TtCE::Testing::AllTests();

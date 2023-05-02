@@ -3,13 +3,7 @@
 //
 
 #include "Testing.hpp"
-#include "Evaluation.hpp"
 #include "defsEnums.hpp"
-#include "gameState.hpp"
-#include <cstdint>
-#include <ctime>
-#include <sys/_types/_int64_t.h>
-#include <typeinfo>
 using namespace std;
 
 namespace TtCE {
@@ -17,7 +11,8 @@ namespace TtCE {
 int Testing::quickTests() {
   gameState gs;
   gameState gsGood;
-  gs.initialise(STARTING_FEN);
+  gs.initialise(
+      "r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R w KQkq - 0 1");
   gs.printing();
   Search s;
   // s.testingFindBestMove(gs, 7);

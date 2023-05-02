@@ -2,9 +2,6 @@
 #define TTCE_UCI_HPP
 
 #include "Search.hpp"
-#include "defsEnums.hpp"
-#include <sstream>
-#include <stdexcept>
 
 using namespace std;
 
