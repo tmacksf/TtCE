@@ -5,13 +5,13 @@ Not all UCI functionality has been implemented, but the core functionality inclu
 
 ### Compiling
 In order to compile this engine, CMake 3.1 and C++ 17 are required.
+To compile, navigate into TtCE directory and run the following commands.
 ```
 mkdir build
 cd build
 cmake ..
 cmake --build .
 ```
-This will compile the project.
 
 ### Running
 A UCI compliant GUI is required to play against the engine. Examples of these include [Arena](http://www.playwitharena.de/) and [Cutechess](https://cutechess.com/).  

@@ -26,8 +26,19 @@ public:
     bBoard &= ~(1ULL << index);
   }
   void toggleBit(int index);
-  [[nodiscard]] int getLeastSignificantBit() const;
+#if defined(__WIN32__)
+  static int inline getLeastSignificantBit(BB b) {
+    return unsigned __int64_tzcnt_u64(b);
+  }
+  int inline getLeastSignificantBit() const {
+    return unsigned __int64_tzcnt_u64(m_bitboard);
+  }
+#else
   static int inline getLeastSignificantBit(BB b) { return __builtin_ctzll(b); }
+  [[nodiscard]] int inline getLeastSignificantBit() const {
+    return __builtin_ctzll(m_bitboard);
+  }
+#endif
   [[nodiscard]] int bitCount() const;
   // overloaded bit count to take a bitboard as an argument. Done using another
   // method. Will test the speed of both of these later on

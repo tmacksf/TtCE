@@ -21,6 +21,8 @@ int Testing::quickTests() {
 
   printBitString(Bitboard::kingMoves[e4]);
 
+  allPerftTests();
+
   return 0;
 }
 

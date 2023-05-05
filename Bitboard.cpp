@@ -39,10 +39,6 @@ int Bitboard::bitCount() const {
           56); // returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
 }
 
-int Bitboard::getLeastSignificantBit() const {
-  return __builtin_ctzll(m_bitboard);
-}
-
 void Bitboard::printBitboard() const {
   std::cout << "  a b c d e f g h" << std::endl;
   for (int file = 0; file < 8; file++) {
