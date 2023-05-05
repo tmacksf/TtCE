@@ -30,30 +30,30 @@ public:
     long opening = 0;
     long endgame = 0;
     if (phase == Middlegame) {
-      opening += pieceScores<Opening>(gs);
-      opening += positionScores<Opening>(gs);
+      opening += pieceScores(gs, Opening);
+      opening += positionScores(gs, Opening);
 
-      endgame += pieceScores<Endgame>(gs);
-      endgame += positionScores<Endgame>(gs);
+      endgame += pieceScores(gs, Endgame);
+      endgame += positionScores(gs, Endgame);
 
       total = (opening * phaseScore + endgame * (OPENINGSCORE - phaseScore)) /
               OPENINGSCORE;
     }
 
     else if (phase == Opening) {
-      total += positionScores<Opening>(gs);
-      total += pieceScores<Opening>(gs);
+      total += positionScores(gs, Opening);
+      total += pieceScores(gs, Opening);
     }
 
     else {
-      total += positionScores<Endgame>(gs);
-      total += pieceScores<Endgame>(gs);
+      total += positionScores(gs, Endgame);
+      total += pieceScores(gs, Endgame);
     }
 
     return (gs.getTurn() == WHITE) ? total : -total;
   }
 
-  template <Phase phase> static inline long pieceScores(const gameState &gs) {
+  static inline int pieceScores(const gameState &gs, Phase phase) {
     long total = 0;
     for (int i = 0; i < pieceCount; i++) {
       total += materialScore[phase][i] * gs.getBitboard(i).bitCount();
@@ -61,8 +61,7 @@ public:
     return total;
   }
 
-  template <Phase gamePhase>
-  static inline int positionScores(const gameState &gs) {
+  static inline int positionScores(const gameState &gs, Phase gamePhase) {
     int total = 0;
     BB pieceBitboard;
 

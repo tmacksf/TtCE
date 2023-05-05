@@ -144,6 +144,10 @@ public:
 
     int attackers = 0;
     // leaping pieces
+    // TODO: This way is better (reduces branching)
+    // attackers +=
+    // Bitboard::bitCount(Bitboard::pawnAttacks[friendlyColor][position] &
+    // m_bitboards[PAWN + 6*attackingColor].getValue());
     if (Bitboard::pawnAttacks[friendlyColor][position] &
         m_bitboards[PAWN + 6 * attackingColor].getValue())
       attackers += 1;

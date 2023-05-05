@@ -11,12 +11,15 @@ namespace TtCE {
 int Testing::quickTests() {
   gameState gs;
   gameState gsGood;
-  gs.initialise(
-      "r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R w KQkq - 0 1");
+  // gs.initialise(
+  //"r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2Q1p/PPPB1PPP/R3K2R w KQkq - 0 1");
+  gs.initialise(STARTING_FEN);
   gs.printing();
   Search s;
   // s.testingFindBestMove(gs, 7);
-  cout << Eval::Evaluation::evaluate(gs);
+  cout << Eval::Evaluation::evaluate(gs) << endl;
+
+  printBitString(Bitboard::kingMoves[e4]);
 
   return 0;
 }

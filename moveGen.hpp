@@ -425,6 +425,9 @@ public:
 
   template <MoveType Type>
   static void legalMoves(const gameState &gs, std::vector<Move> &moves) {
+    // TODO: make is so illegal moves are popped from the vector. Writing such a
+    // large amount of moves is expensive so this can be remedied by popping
+    // from vector
     int isKingInCheck = gs.isKingInCheck(gs.getAttacking());
 
     std::vector<Move> pseudoLegalMoveVector;
