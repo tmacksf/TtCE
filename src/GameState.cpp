@@ -2,8 +2,7 @@
 // Created by Thomas Mack on 28/12/2022.
 //
 
-#include "gameState.hpp"
-#include "defsEnums.hpp"
+#include "GameState.hpp"
 
 namespace TtCE {
 // initialise transposition table

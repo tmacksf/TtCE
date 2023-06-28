@@ -2,7 +2,7 @@
 // Created by Thomas Mack on 23/12/2022.
 //
 
-#include "game.hpp"
+#include "Game.hpp"
 
 using namespace std;
 

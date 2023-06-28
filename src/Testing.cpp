@@ -3,7 +3,6 @@
 //
 
 #include "Testing.hpp"
-#include "defsEnums.hpp"
 using namespace std;
 
 namespace TtCE {
