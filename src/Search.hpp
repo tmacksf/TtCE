@@ -6,7 +6,7 @@
 #define TTCE_SEARCH_HPP
 
 #include "Evaluation.hpp"
-#include "moveGen.hpp"
+#include "MoveGen.hpp"
 #include <algorithm>
 
 namespace TtCE {

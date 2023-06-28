@@ -1,6 +1,6 @@
 #ifndef TTCE_MOVEGEN_HPP
 #define TTCE_MOVEGEN_HPP
-#include "gameState.hpp"
+#include "GameState.hpp"
 
 namespace TtCE {
 

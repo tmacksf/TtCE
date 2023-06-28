@@ -1,7 +1,7 @@
 //
 // Created by Thomas Mack on 23/12/2022.
 //
-#include "defsEnums.hpp"
+#include "DefsEnums.hpp"
 
 #ifndef TTCE_BITBOARDS_HPP
 #define TTCE_BITBOARDS_HPP

@@ -5,7 +5,6 @@
 #ifndef TTCE_MOVE_HPP
 #define TTCE_MOVE_HPP
 #include "Magics.hpp"
-#include "defsEnums.hpp"
 
 namespace TtCE {
 
